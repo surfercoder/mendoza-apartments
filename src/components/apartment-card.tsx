@@ -1,0 +1,169 @@
+"use client"
+
+import * as React from "react"
+import Image from "next/image"
+import { Apartment } from "@/lib/types"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { BookingModal } from "@/components/booking-modal"
+import { 
+  Bed, 
+  Bath, 
+  Wifi, 
+  Car, 
+  Waves, 
+  Users, 
+  MapPin,
+  Calendar
+} from "lucide-react"
+
+interface ApartmentCardProps {
+  apartment: Apartment
+  checkIn?: Date
+  checkOut?: Date
+  guests?: number
+}
+
+export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: ApartmentCardProps) {
+  const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
+  const characteristics = apartment.characteristics || {}
+  
+  const calculateTotalPrice = () => {
+    if (!checkIn || !checkOut) return null
+    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
+    return nights * apartment.price_per_night
+  }
+
+  const totalPrice = calculateTotalPrice()
+  const nights = checkIn && checkOut ? Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)) : null
+
+  const handleBookingSuccess = () => {
+    // Optionally refresh the apartment list or show a success message
+    console.log('Booking submitted successfully!')
+  }
+
+  return (
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      <CardHeader className="p-0">
+        <div className="relative h-48 w-full">
+          {apartment.images && apartment.images.length > 0 ? (
+            <Image
+              src={apartment.images[0]}
+              alt={apartment.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">No image available</span>
+            </div>
+          )}
+          <div className="absolute top-2 right-2">
+            <Badge variant="secondary" className="bg-white/90">
+              ${apartment.price_per_night}/night
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="p-4">
+        <CardTitle className="text-lg mb-2">{apartment.title}</CardTitle>
+        
+        <div className="flex items-center text-sm text-gray-600 mb-3">
+          <MapPin className="h-4 w-4 mr-1" />
+          {apartment.address}
+        </div>
+        
+        <p className="text-sm text-gray-700 mb-4 line-clamp-2">
+          {apartment.description}
+        </p>
+        
+        <div className="flex flex-wrap gap-2 mb-4">
+          {characteristics.bedrooms && (
+            <div className="flex items-center text-sm">
+              <Bed className="h-4 w-4 mr-1" />
+              {characteristics.bedrooms} bed{characteristics.bedrooms > 1 ? 's' : ''}
+            </div>
+          )}
+          {characteristics.bathrooms && (
+            <div className="flex items-center text-sm">
+              <Bath className="h-4 w-4 mr-1" />
+              {characteristics.bathrooms} bath{characteristics.bathrooms > 1 ? 's' : ''}
+            </div>
+          )}
+          <div className="flex items-center text-sm">
+            <Users className="h-4 w-4 mr-1" />
+            Up to {apartment.max_guests} guests
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-1 mb-4">
+          {characteristics.wifi && (
+            <Badge variant="outline" className="text-xs">
+              <Wifi className="h-3 w-3 mr-1" />
+              WiFi
+            </Badge>
+          )}
+          {characteristics.parking && (
+            <Badge variant="outline" className="text-xs">
+              <Car className="h-3 w-3 mr-1" />
+              Parking
+            </Badge>
+          )}
+          {characteristics.pool && (
+            <Badge variant="outline" className="text-xs">
+              <Waves className="h-3 w-3 mr-1" />
+              Pool
+            </Badge>
+          )}
+          {characteristics.air_conditioning && (
+            <Badge variant="outline" className="text-xs">
+              AC
+            </Badge>
+          )}
+          {characteristics.kitchen && (
+            <Badge variant="outline" className="text-xs">
+              Kitchen
+            </Badge>
+          )}
+        </div>
+        
+        {totalPrice && nights && (
+          <div className="border-t pt-3 mb-3">
+            <div className="flex justify-between text-sm">
+              <span>${apartment.price_per_night} × {nights} night{nights > 1 ? 's' : ''}</span>
+              <span>${totalPrice}</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <span>Total</span>
+              <span>${totalPrice}</span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+      
+      <CardFooter className="p-4 pt-0">
+        <Button 
+          onClick={() => setIsBookingModalOpen(true)}
+          size="sm" 
+          className="w-full"
+          disabled={!checkIn || !checkOut}
+        >
+          <Calendar className="h-4 w-4 mr-2" />
+          {checkIn && checkOut ? 'Book Now' : 'Select Dates to Book'}
+        </Button>
+        
+        <BookingModal
+          apartment={apartment}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          guests={guests}
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          onSuccess={handleBookingSuccess}
+        />
+      </CardFooter>
+    </Card>
+  )
+}
