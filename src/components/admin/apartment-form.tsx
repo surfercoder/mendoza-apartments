@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/form"
 import { createApartment, updateApartment } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
-import { Loader2, Plus, X } from "lucide-react"
+import { Loader2, X } from "lucide-react"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
+import { uploadApartmentImage } from "@/lib/supabase/storage"
 
 const apartmentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -64,7 +66,8 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
   const t = useTranslations('admin.form')
   const [isLoading, setIsLoading] = React.useState(false)
   const [imageUrls, setImageUrls] = React.useState<string[]>(apartment?.images || [])
-  const [newImageUrl, setNewImageUrl] = React.useState("")
+  const [isUploading, setIsUploading] = React.useState(false)
+  const [uploadError, setUploadError] = React.useState<string | null>(null)
 
   const form = useForm<ApartmentFormData>({
     resolver: zodResolver(apartmentSchema),
@@ -97,19 +100,34 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
     },
   })
 
-  const addImageUrl = () => {
-    if (newImageUrl.trim()) {
-      const updatedImages = [...imageUrls, newImageUrl.trim()]
-      setImageUrls(updatedImages)
-      form.setValue("images", updatedImages)
-      setNewImageUrl("")
-    }
-  }
-
   const removeImageUrl = (index: number) => {
     const updatedImages = imageUrls.filter((_, i) => i !== index)
     setImageUrls(updatedImages)
     form.setValue("images", updatedImages)
+  }
+
+  const handleFilesSelected = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    setIsUploading(true)
+    setUploadError(null)
+    const uploaded: string[] = []
+    try {
+      for (const file of Array.from(files)) {
+        const res = await uploadApartmentImage(file)
+        if ("error" in res) {
+          setUploadError(res.error)
+          continue
+        }
+        uploaded.push(res.url)
+      }
+      if (uploaded.length > 0) {
+        const updated = [...imageUrls, ...uploaded]
+        setImageUrls(updated)
+        form.setValue("images", updated)
+      }
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const onSubmit = async (data: ApartmentFormData) => {
@@ -371,7 +389,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 <FormField
                   key={characteristic.name}
                   control={form.control}
-                  name={`characteristics.${characteristic.name}` as any} // eslint-disable-line
+                  name={`characteristics.${characteristic.name}` as `characteristics.${'wifi' | 'kitchen' | 'air_conditioning' | 'parking' | 'pool' | 'balcony' | 'terrace' | 'garden' | 'bbq' | 'washing_machine' | 'mountain_view'}`}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
@@ -397,34 +415,41 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
               <CardTitle>{t('images')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder={t('enterImageUrl')}
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
-                />
-                <Button type="button" onClick={addImageUrl} variant="outline">
-                  <Plus className="h-4 w-4" />
-                </Button>
+              {/* File upload */}
+              <div className="space-y-2">
+                <Label htmlFor="imageFiles">Upload images</Label>
+                <Input id="imageFiles" type="file" accept="image/*" multiple onChange={(e) => handleFilesSelected(e.target.files)} />
+                {isUploading && (
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" /> Uploading...
+                  </div>
+                )}
+                {uploadError && (
+                  <div className="text-xs text-red-600">{uploadError}</div>
+                )}
               </div>
 
               {imageUrls.length > 0 && (
                 <div className="space-y-2">
                   <Label>{t('imageUrls')}</Label>
-                  {imageUrls.map((url, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 border rounded">
-                      <span className="flex-1 text-sm truncate">{url}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeImageUrl(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
+                  <div className="grid grid-cols-3 gap-2">
+                    {imageUrls.map((url, index) => (
+                      <div key={index} className="relative p-2 border rounded">
+                        <div className="relative h-20 w-full overflow-hidden rounded">
+                          <Image src={url} alt={`image-${index}`} fill className="object-cover" />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white/90"
+                          onClick={() => removeImageUrl(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>

@@ -16,7 +16,6 @@ export interface Apartment {
     bbq?: boolean;
     washing_machine?: boolean;
     mountain_view?: boolean;
-    [key: string]: any; // eslint-disable-line
   };
   price_per_night: number;
   max_guests: number;
@@ -66,7 +65,21 @@ export interface SearchFilters {
 export interface ApartmentFormData {
   title: string;
   description: string;
-  characteristics: Record<string, any>; // eslint-disable-line
+  characteristics: {
+    bedrooms?: number;
+    bathrooms?: number;
+    wifi?: boolean;
+    kitchen?: boolean;
+    air_conditioning?: boolean;
+    parking?: boolean;
+    pool?: boolean;
+    balcony?: boolean;
+    terrace?: boolean;
+    garden?: boolean;
+    bbq?: boolean;
+    washing_machine?: boolean;
+    mountain_view?: boolean;
+  };
   price_per_night: number;
   max_guests: number;
   address: string;

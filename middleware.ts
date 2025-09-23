@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
   const response = intlResponse instanceof Promise ? await intlResponse : intlResponse;
   // Merge cookies from Supabase into the i18n response
   const supaCookies = supaResponse.cookies.getAll();
+
   for (const c of supaCookies) {
     // getAll() returns objects with name and value (options may not be included),
     // so we set them individually to the outgoing response.
@@ -25,6 +26,7 @@ export async function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365 // 1 year
     });
   }
+
   return response as NextResponse;
 }
 

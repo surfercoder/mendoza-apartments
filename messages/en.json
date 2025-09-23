@@ -67,6 +67,7 @@
       "images": "Images",
       "enterImageUrl": "Enter image URL",
       "imageUrls": "Image URLs:",
+      "cancel": "Cancel",
       "create": "Create Apartment",
       "update": "Update Apartment"
     }

@@ -67,6 +67,7 @@
       "images": "Imágenes",
       "enterImageUrl": "Ingresa la URL de la imagen",
       "imageUrls": "URLs de imágenes:",
+      "cancel": "Cancelar",
       "create": "Crear departamento",
       "update": "Actualizar departamento"
     }

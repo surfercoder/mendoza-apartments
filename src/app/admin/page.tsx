@@ -135,7 +135,7 @@ export default function AdminDashboard() {
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                {t('common.addNewApartment')}
+                {tc('addNewApartment')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
