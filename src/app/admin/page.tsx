@@ -18,8 +18,11 @@ import { getAllApartments } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
 import { Plus, Home, Calendar, Users } from "lucide-react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 export default function AdminDashboard() {
+  const t = useTranslations('admin')
+  const tc = useTranslations('common')
   const [apartments, setApartments] = React.useState<Apartment[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
@@ -62,35 +65,35 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Apartments</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.totalApartments')}</CardTitle>
             <Home className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{apartments.length}</div>
             <p className="text-xs text-muted-foreground">
-              {activeApartments.length} active, {inactiveApartments.length} inactive
+              {activeApartments.length} {tc('active')}, {inactiveApartments.length} {tc('inactive')}
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.activeListings')}</CardTitle>
             <Badge variant="outline" className="text-green-600">
-              Active
+              {tc('active')}
             </Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeApartments.length}</div>
             <p className="text-xs text-muted-foreground">
-              Available for booking
+              {t('dashboard.availableForBooking')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Max Capacity</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.maxCapacity')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -98,21 +101,21 @@ export default function AdminDashboard() {
               {activeApartments.reduce((sum, apt) => sum + apt.max_guests, 0)}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total guests across all active apartments
+              {t('dashboard.totalGuestsAcrossActive')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.quickActions')}</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <Link href="/" className="block">
                 <Button variant="outline" size="sm" className="w-full">
-                  View Public Site
+                  {tc('viewPublicSite')}
                 </Button>
               </Link>
             </div>
@@ -124,24 +127,22 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Apartments Management</h2>
-            <p className="text-muted-foreground">
-              Create, edit, and manage your apartment listings
-            </p>
+            <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.apartmentsManagement')}</h2>
+            <p className="text-muted-foreground">{t('dashboard.createEditManage')}</p>
           </div>
           
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Add New Apartment
+                {t('common.addNewApartment')}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create New Apartment</DialogTitle>
+                <DialogTitle>{t('dialogs.createTitle')}</DialogTitle>
                 <DialogDescription>
-                  Add a new apartment to your rental portfolio
+                  {t('dialogs.createDescription')}
                 </DialogDescription>
               </DialogHeader>
               <ApartmentForm 

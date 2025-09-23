@@ -22,6 +22,7 @@ import {
 import { createApartment, updateApartment } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
 import { Loader2, Plus, X } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 const apartmentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -60,6 +61,7 @@ interface ApartmentFormProps {
 }
 
 export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormProps) {
+  const t = useTranslations('admin.form')
   const [isLoading, setIsLoading] = React.useState(false)
   const [imageUrls, setImageUrls] = React.useState<string[]>(apartment?.images || [])
   const [newImageUrl, setNewImageUrl] = React.useState("")
@@ -135,11 +137,11 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Basic Information */}
-          <Card>
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>{t('basicInformation')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -147,7 +149,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>{t('title')}</FormLabel>
                     <FormControl>
                       <Input placeholder="Cozy Downtown Apartment" {...field} />
                     </FormControl>
@@ -161,10 +163,10 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t('description')}</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Describe the apartment, its location, and amenities..."
+                        placeholder={t('descriptionPlaceholder')}
                         rows={4}
                         {...field} 
                       />
@@ -179,7 +181,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>{t('address')}</FormLabel>
                     <FormControl>
                       <Input placeholder="San Martín 1234, Mendoza Capital" {...field} />
                     </FormControl>
@@ -194,7 +196,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   name="price_per_night"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price per Night ($)</FormLabel>
+                      <FormLabel>{t('pricePerNight')}</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -213,7 +215,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   name="max_guests"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Max Guests</FormLabel>
+                      <FormLabel>{t('maxGuests')}</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -240,9 +242,9 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Active Listing</FormLabel>
+                      <FormLabel>{t('activeListing')}</FormLabel>
                       <FormDescription>
-                        Make this apartment available for booking
+                        {t('activeListingDesc')}
                       </FormDescription>
                     </div>
                   </FormItem>
@@ -254,7 +256,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
           {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
+              <CardTitle>{t('contactInformation')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -262,7 +264,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="contact_email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Email</FormLabel>
+                    <FormLabel>{t('contactEmail')}</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="florencia@mendozaapartments.com" {...field} />
                     </FormControl>
@@ -276,7 +278,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="contact_phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Phone</FormLabel>
+                    <FormLabel>{t('contactPhone')}</FormLabel>
                     <FormControl>
                       <Input placeholder="+54 261 123-4567" {...field} />
                     </FormControl>
@@ -290,12 +292,12 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="whatsapp_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>WhatsApp Number</FormLabel>
+                    <FormLabel>{t('whatsappNumber')}</FormLabel>
                     <FormControl>
                       <Input placeholder="+54 9 261 123-4567" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Include country code for WhatsApp integration
+                      {t('whatsappHint')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -305,19 +307,20 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
           </Card>
         </div>
 
-        {/* Characteristics */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Apartment Characteristics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        {/* Characteristics + Images Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>{t('characteristics')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <FormField
                 control={form.control}
                 name="characteristics.bedrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bedrooms</FormLabel>
+                    <FormLabel>{t('bedrooms')}</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -336,7 +339,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 name="characteristics.bathrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bathrooms</FormLabel>
+                    <FormLabel>{t('bathrooms')}</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -349,21 +352,21 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   </FormItem>
                 )}
               />
-            </div>
+              </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[
-                { name: "wifi", label: "WiFi" },
-                { name: "kitchen", label: "Kitchen" },
-                { name: "air_conditioning", label: "Air Conditioning" },
-                { name: "parking", label: "Parking" },
-                { name: "pool", label: "Pool" },
-                { name: "balcony", label: "Balcony" },
-                { name: "terrace", label: "Terrace" },
-                { name: "garden", label: "Garden" },
-                { name: "bbq", label: "BBQ" },
-                { name: "washing_machine", label: "Washing Machine" },
-                { name: "mountain_view", label: "Mountain View" },
+                { name: "wifi", label: t('wifi') },
+                { name: "kitchen", label: t('kitchen') },
+                { name: "air_conditioning", label: t('air_conditioning') },
+                { name: "parking", label: t('parking') },
+                { name: "pool", label: t('pool') },
+                { name: "balcony", label: t('balcony') },
+                { name: "terrace", label: t('terrace') },
+                { name: "garden", label: t('garden') },
+                { name: "bbq", label: t('bbq') },
+                { name: "washing_machine", label: t('washing_machine') },
+                { name: "mountain_view", label: t('mountain_view') },
               ].map((characteristic) => (
                 <FormField
                   key={characteristic.name}
@@ -384,57 +387,58 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   )}
                 />
               ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Images */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Images</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter image URL"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
-              />
-              <Button type="button" onClick={addImageUrl} variant="outline">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {imageUrls.length > 0 && (
-              <div className="space-y-2">
-                <Label>Image URLs:</Label>
-                {imageUrls.map((url, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 border rounded">
-                    <span className="flex-1 text-sm truncate">{url}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeImageUrl(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Images */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle>{t('images')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder={t('enterImageUrl')}
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                />
+                <Button type="button" onClick={addImageUrl} variant="outline">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {imageUrls.length > 0 && (
+                <div className="space-y-2">
+                  <Label>{t('imageUrls')}</Label>
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 border rounded">
+                      <span className="flex-1 text-sm truncate">{url}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeImageUrl(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Form Actions */}
         <div className="flex gap-4 justify-end">
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+            {t('cancel', { default: 'Cancel' })}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {apartment ? "Update Apartment" : "Create Apartment"}
+            {apartment ? t('update') : t('create')}
           </Button>
         </div>
       </form>

@@ -1,0 +1,143 @@
+{
+  "common": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "viewPublicSite": "Ver sitio público",
+    "addNewApartment": "Agregar departamento",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "signOut": "Cerrar sesión",
+    "welcome": "Bienvenido"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Panel de Administración",
+      "totalApartments": "Departamentos totales",
+      "activeListings": "Publicaciones activas",
+      "maxCapacity": "Capacidad máxima",
+      "quickActions": "Acciones rápidas",
+      "availableForBooking": "Disponibles para reservar",
+      "totalGuestsAcrossActive": "Huéspedes totales en todos los departamentos activos",
+      "apartmentsManagement": "Gestión de departamentos",
+      "createEditManage": "Crea, edita y administra tus publicaciones"
+    },
+    "dialogs": {
+      "createTitle": "Crear nuevo departamento",
+      "createDescription": "Agrega un nuevo departamento a tu portfolio de alquileres",
+      "editTitle": "Editar departamento",
+      "editDescription": "Actualiza la información del departamento",
+      "deleteTitle": "Eliminar departamento",
+      "deleteConfirm": "¿Seguro que deseas eliminar \"{title}\"? Esta acción no se puede deshacer."
+    },
+    "list": {
+      "noApartmentsTitle": "No hay departamentos aún",
+      "noApartmentsDesc": "Comienza creando tu primera publicación",
+      "noImage": "Sin imagen"
+    },
+    "form": {
+      "basicInformation": "Información básica",
+      "contactInformation": "Información de contacto",
+      "title": "Título",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Describe el departamento, su ubicación y comodidades...",
+      "address": "Dirección",
+      "pricePerNight": "Precio por noche ($)",
+      "maxGuests": "Máx. huéspedes",
+      "activeListing": "Publicación activa",
+      "activeListingDesc": "Hacer que este departamento esté disponible para reservar",
+      "contactEmail": "Email de contacto",
+      "contactPhone": "Teléfono de contacto",
+      "whatsappNumber": "Número de WhatsApp",
+      "whatsappHint": "Incluye el código de país para la integración con WhatsApp",
+      "characteristics": "Características del departamento",
+      "bedrooms": "Habitaciones",
+      "bathrooms": "Baños",
+      "wifi": "WiFi",
+      "kitchen": "Cocina",
+      "air_conditioning": "Aire acondicionado",
+      "parking": "Estacionamiento",
+      "pool": "Piscina",
+      "balcony": "Balcón",
+      "terrace": "Terraza",
+      "garden": "Jardín",
+      "bbq": "Parrilla",
+      "washing_machine": "Lavarropas",
+      "mountain_view": "Vista a la montaña",
+      "images": "Imágenes",
+      "enterImageUrl": "Ingresa la URL de la imagen",
+      "imageUrls": "URLs de imágenes:",
+      "create": "Crear departamento",
+      "update": "Actualizar departamento"
+    }
+  },
+  "home": {
+    "brand": "Mendoza Apartments",
+    "tagline": "Hermosas estadías en Mendoza, Argentina",
+    "adminDashboard": "Panel de Administración",
+    "heroTitle": "Encontrá tu estadía perfecta en Mendoza",
+    "heroSubtitle": "Descubrí departamentos hermosos en el corazón de la tierra del vino de Argentina. Desde espacios céntricos y acogedores hasta penthouses de lujo con vista a la montaña.",
+    "results": {
+      "found": "{count} departamento{count, plural, one {} other {s}} disponible{count, plural, one {} other {s}}",
+      "none": "No hay departamentos disponibles",
+      "adjust": "Probá ajustando tus fechas o la cantidad de huéspedes para ver más opciones.",
+      "viewAll": "Ver todos los departamentos",
+      "forDates": "Para {from} - {to}",
+      "guests": "{count} huésped{count, plural, one {} other {es}}",
+      "allTitle": "Todos los departamentos disponibles",
+      "allSubtitle": "Recorré nuestra colección de departamentos o usá la búsqueda para ver disponibilidad por fechas."
+    },
+    "footer": {
+      "copyright": "2024 Mendoza Apartments. Administrado por Florencia.",
+      "contact": "Consultas por email o WhatsApp desde cualquier publicación."
+    }
+  },
+  "listing": {
+    "noImage": "Sin imagen",
+    "night": "noche",
+    "beds": "{count} cama{count, plural, one {} other {s}}",
+    "baths": "{count} baño{count, plural, one {} other {s}}",
+    "upToGuests": "Hasta {count} huésped{count, plural, one {} other {es}}",
+    "nights": "{count} noche{count, plural, one {} other {s}}",
+    "total": "Total",
+    "bookNow": "Reservar ahora",
+    "selectDates": "Seleccioná fechas para reservar",
+    "amenities": {
+      "wifi": "WiFi",
+      "parking": "Estacionamiento",
+      "pool": "Piscina",
+      "ac": "Aire Acond.",
+      "kitchen": "Cocina"
+    }
+  },
+  "booking": {
+    "title": "Reservá tu estadía",
+    "description": "Completá tu solicitud de reserva para {title}",
+    "submittedTitle": "¡Solicitud de reserva enviada!",
+    "submittedDesc": "¡Gracias! Florencia se pondrá en contacto pronto para confirmar tu reserva.",
+    "submittedEmail": "Vas a recibir un email de confirmación en breve.",
+    "summary": {
+      "title": "Resumen de la reserva",
+      "nights": "{count} noche{count, plural, one {} other {s}}",
+      "guests": "{count} huésped{count, plural, one {} other {es}}",
+      "total": "Total"
+    },
+    "form": {
+      "fullName": "Nombre y Apellido *",
+      "fullNamePh": "Ingresá tu nombre completo",
+      "email": "Correo electrónico *",
+      "phone": "Teléfono *",
+      "notes": "Notas adicionales (opcional)",
+      "notesPh": "Cualquier pedido especial o consulta..."
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "submitting": "Enviando...",
+      "submit": "Enviar solicitud de reserva"
+    },
+    "note": {
+      "title": "Nota:",
+      "content": "Esto es una solicitud de reserva. Florencia te va a contactar dentro de 24 horas para confirmar disponibilidad y medios de pago."
+    }
+  }
+}

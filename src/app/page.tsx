@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import Link from "next/link"
 import { MapPin, Heart } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default function HomePage() {
+  const t = useTranslations('home')
   const [apartments, setApartments] = React.useState<Apartment[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
   const [hasSearched, setHasSearched] = React.useState(false)
@@ -62,19 +65,20 @@ export default function HomePage() {
             <div className="flex items-center space-x-2">
               <Heart className="h-8 w-8 text-red-500" />
               <div>
-                <h1 className="text-2xl font-bold">Mendoza Apartments</h1>
+                <h1 className="text-2xl font-bold">{t('brand')}</h1>
                 <p className="text-sm text-muted-foreground flex items-center">
                   <MapPin className="h-4 w-4 mr-1" />
-                  Beautiful stays in Mendoza, Argentina
+                  {t('tagline')}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/admin">
                 <Button variant="outline" size="sm">
-                  Admin Dashboard
+                  {t('adminDashboard')}
                 </Button>
               </Link>
+              <LanguageSwitcher />
               <ThemeSwitcher />
             </div>
           </div>
@@ -86,11 +90,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Find Your Perfect Stay in Mendoza
+              {t('heroTitle')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Discover beautiful apartments in the heart of Argentina&apos;s wine country. 
-              From cozy downtown spaces to luxury penthouses with mountain views.
+              {t('heroSubtitle')}
             </p>
           </div>
           
@@ -105,14 +108,14 @@ export default function HomePage() {
             <div className="mb-8">
               <h3 className="text-2xl font-semibold mb-2">
                 {apartments.length > 0 
-                  ? `${apartments.length} apartment${apartments.length > 1 ? 's' : ''} available`
-                  : 'No apartments found'
+                  ? t('results.found', {count: apartments.length})
+                  : t('results.none')
                 }
               </h3>
               {currentFilters.checkIn && currentFilters.checkOut && (
                 <p className="text-muted-foreground">
-                  For {currentFilters.checkIn.toLocaleDateString()} - {currentFilters.checkOut.toLocaleDateString()} 
-                  • {currentFilters.guests} guest{currentFilters.guests > 1 ? 's' : ''}
+                  {t('results.forDates', {from: currentFilters.checkIn.toLocaleDateString(), to: currentFilters.checkOut.toLocaleDateString()})}
+                  • {t('results.guests', {count: currentFilters.guests})}
                 </p>
               )}
             </div>
@@ -121,10 +124,10 @@ export default function HomePage() {
           {!hasSearched && (
             <div className="mb-8">
               <h3 className="text-2xl font-semibold mb-2">
-                All Available Apartments
+                {t('results.allTitle')}
               </h3>
               <p className="text-muted-foreground">
-                Browse our collection of apartments or use the search above to find availability for specific dates.
+                {t('results.allSubtitle')}
               </p>
             </div>
           )}
@@ -154,10 +157,8 @@ export default function HomePage() {
           ) : hasSearched ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🏠</div>
-              <h3 className="text-xl font-semibold mb-2">No apartments available</h3>
-              <p className="text-muted-foreground mb-4">
-                Try adjusting your dates or number of guests to see more options.
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{t('results.none')}</h3>
+              <p className="text-muted-foreground mb-4">{t('results.adjust')}</p>
               <Button 
                 onClick={() => {
                   setHasSearched(false)
@@ -166,7 +167,7 @@ export default function HomePage() {
                 }}
                 variant="outline"
               >
-                View All Apartments
+                {t('results.viewAll')}
               </Button>
             </div>
           ) : null}
@@ -178,10 +179,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center text-muted-foreground">
             <p className="mb-2">
-              2024 Mendoza Apartments. Managed by Florencia.
+              {t('footer.copyright')}
             </p>
             <p className="text-sm">
-              For inquiries, contact us via email or WhatsApp through any apartment listing.
+              {t('footer.contact')}
             </p>
           </div>
         </div>

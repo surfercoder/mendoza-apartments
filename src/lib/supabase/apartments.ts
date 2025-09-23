@@ -15,8 +15,6 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
       console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', key ? '✅ Set' : '❌ Missing');
       return [];
     }
-
-    console.log('🔍 Searching apartments with filters:', filters);
     
     let query = supabase
       .from('apartments')

@@ -1,0 +1,143 @@
+{
+  "common": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "viewPublicSite": "View Public Site",
+    "addNewApartment": "Add New Apartment",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "signOut": "Sign out",
+    "welcome": "Welcome"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "totalApartments": "Total Apartments",
+      "activeListings": "Active Listings",
+      "maxCapacity": "Max Capacity",
+      "quickActions": "Quick Actions",
+      "availableForBooking": "Available for booking",
+      "totalGuestsAcrossActive": "Total guests across all active apartments",
+      "apartmentsManagement": "Apartments Management",
+      "createEditManage": "Create, edit, and manage your apartment listings"
+    },
+    "dialogs": {
+      "createTitle": "Create New Apartment",
+      "createDescription": "Add a new apartment to your rental portfolio",
+      "editTitle": "Edit Apartment",
+      "editDescription": "Update the apartment information",
+      "deleteTitle": "Delete Apartment",
+      "deleteConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone."
+    },
+    "list": {
+      "noApartmentsTitle": "No apartments yet",
+      "noApartmentsDesc": "Start by creating your first apartment listing",
+      "noImage": "No image"
+    },
+    "form": {
+      "basicInformation": "Basic Information",
+      "contactInformation": "Contact Information",
+      "title": "Title",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the apartment, its location, and amenities...",
+      "address": "Address",
+      "pricePerNight": "Price per Night ($)",
+      "maxGuests": "Max Guests",
+      "activeListing": "Active Listing",
+      "activeListingDesc": "Make this apartment available for booking",
+      "contactEmail": "Contact Email",
+      "contactPhone": "Contact Phone",
+      "whatsappNumber": "WhatsApp Number",
+      "whatsappHint": "Include country code for WhatsApp integration",
+      "characteristics": "Apartment Characteristics",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "wifi": "WiFi",
+      "kitchen": "Kitchen",
+      "air_conditioning": "Air Conditioning",
+      "parking": "Parking",
+      "pool": "Pool",
+      "balcony": "Balcony",
+      "terrace": "Terrace",
+      "garden": "Garden",
+      "bbq": "BBQ",
+      "washing_machine": "Washing Machine",
+      "mountain_view": "Mountain View",
+      "images": "Images",
+      "enterImageUrl": "Enter image URL",
+      "imageUrls": "Image URLs:",
+      "create": "Create Apartment",
+      "update": "Update Apartment"
+    }
+  },
+  "home": {
+    "brand": "Mendoza Apartments",
+    "tagline": "Beautiful stays in Mendoza, Argentina",
+    "adminDashboard": "Admin Dashboard",
+    "heroTitle": "Find Your Perfect Stay in Mendoza",
+    "heroSubtitle": "Discover beautiful apartments in the heart of Argentina's wine country. From cozy downtown spaces to luxury penthouses with mountain views.",
+    "results": {
+      "found": "{count} apartment{count, plural, one {} other {s}} available",
+      "none": "No apartments available",
+      "adjust": "Try adjusting your dates or number of guests to see more options.",
+      "viewAll": "View All Apartments",
+      "forDates": "For {from} - {to}",
+      "guests": "{count} guest{count, plural, one {} other {s}}",
+      "allTitle": "All Available Apartments",
+      "allSubtitle": "Browse our collection of apartments or use the search above to find availability for specific dates."
+    },
+    "footer": {
+      "copyright": "2024 Mendoza Apartments. Managed by Florencia.",
+      "contact": "For inquiries, contact us via email or WhatsApp through any apartment listing."
+    }
+  },
+  "listing": {
+    "noImage": "No image available",
+    "night": "night",
+    "beds": "{count} bed{count, plural, one {} other {s}}",
+    "baths": "{count} bath{count, plural, one {} other {s}}",
+    "upToGuests": "Up to {count} guest{count, plural, one {} other {s}}",
+    "nights": "{count} night{count, plural, one {} other {s}}",
+    "total": "Total",
+    "bookNow": "Book Now",
+    "selectDates": "Select Dates to Book",
+    "amenities": {
+      "wifi": "WiFi",
+      "parking": "Parking",
+      "pool": "Pool",
+      "ac": "AC",
+      "kitchen": "Kitchen"
+    }
+  },
+  "booking": {
+    "title": "Book Your Stay",
+    "description": "Complete your booking request for {title}",
+    "submittedTitle": "Booking Request Submitted!",
+    "submittedDesc": "Thank you! Florencia will contact you soon to confirm your booking.",
+    "submittedEmail": "You will receive a confirmation email shortly.",
+    "summary": {
+      "title": "Booking Summary",
+      "nights": "{count} night{count, plural, one {} other {s}}",
+      "guests": "{count} guest{count, plural, one {} other {s}}",
+      "total": "Total"
+    },
+    "form": {
+      "fullName": "Full Name *",
+      "fullNamePh": "Enter your full name",
+      "email": "Email Address *",
+      "phone": "Phone Number *",
+      "notes": "Additional Notes (Optional)",
+      "notesPh": "Any special requests or questions..."
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "submitting": "Submitting...",
+      "submit": "Submit Booking Request"
+    },
+    "note": {
+      "title": "Note:",
+      "content": "This is a booking request. Florencia will contact you within 24 hours to confirm availability and provide payment instructions."
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { ThemeProvider } from "next-themes";
+import { cookies } from "next/headers";
+import { RootProviders } from "@/components/root-providers";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -19,22 +20,20 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get?.("NEXT_LOCALE")?.value || "es";
+  const messages = (await import(`../../messages/${locale}.json`)).default;
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <RootProviders locale={locale} messages={messages}>
           {children}
-        </ThemeProvider>
+        </RootProviders>
       </body>
     </html>
   );

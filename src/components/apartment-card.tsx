@@ -17,6 +17,7 @@ import {
   MapPin,
   Calendar
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface ApartmentCardProps {
   apartment: Apartment
@@ -28,6 +29,7 @@ interface ApartmentCardProps {
 export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: ApartmentCardProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
   const characteristics = apartment.characteristics || {}
+  const t = useTranslations('listing')
   
   const calculateTotalPrice = () => {
     if (!checkIn || !checkOut) return null
@@ -56,12 +58,12 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
             />
           ) : (
             <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500">No image available</span>
+              <span className="text-gray-500">{t('noImage')}</span>
             </div>
           )}
           <div className="absolute top-2 right-2">
             <Badge variant="secondary" className="bg-white/90">
-              ${apartment.price_per_night}/night
+              ${apartment.price_per_night}/{t('night')}
             </Badge>
           </div>
         </div>
@@ -83,18 +85,18 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
           {characteristics.bedrooms && (
             <div className="flex items-center text-sm">
               <Bed className="h-4 w-4 mr-1" />
-              {characteristics.bedrooms} bed{characteristics.bedrooms > 1 ? 's' : ''}
+              {t('beds', {count: characteristics.bedrooms})}
             </div>
           )}
           {characteristics.bathrooms && (
             <div className="flex items-center text-sm">
               <Bath className="h-4 w-4 mr-1" />
-              {characteristics.bathrooms} bath{characteristics.bathrooms > 1 ? 's' : ''}
+              {t('baths', {count: characteristics.bathrooms})}
             </div>
           )}
           <div className="flex items-center text-sm">
             <Users className="h-4 w-4 mr-1" />
-            Up to {apartment.max_guests} guests
+            {t('upToGuests', {count: apartment.max_guests})}
           </div>
         </div>
         
@@ -102,29 +104,29 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
           {characteristics.wifi && (
             <Badge variant="outline" className="text-xs">
               <Wifi className="h-3 w-3 mr-1" />
-              WiFi
+              {t('amenities.wifi')}
             </Badge>
           )}
           {characteristics.parking && (
             <Badge variant="outline" className="text-xs">
               <Car className="h-3 w-3 mr-1" />
-              Parking
+              {t('amenities.parking')}
             </Badge>
           )}
           {characteristics.pool && (
             <Badge variant="outline" className="text-xs">
               <Waves className="h-3 w-3 mr-1" />
-              Pool
+              {t('amenities.pool')}
             </Badge>
           )}
           {characteristics.air_conditioning && (
             <Badge variant="outline" className="text-xs">
-              AC
+              {t('amenities.ac')}
             </Badge>
           )}
           {characteristics.kitchen && (
             <Badge variant="outline" className="text-xs">
-              Kitchen
+              {t('amenities.kitchen')}
             </Badge>
           )}
         </div>
@@ -132,11 +134,11 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
         {totalPrice && nights && (
           <div className="border-t pt-3 mb-3">
             <div className="flex justify-between text-sm">
-              <span>${apartment.price_per_night} × {nights} night{nights > 1 ? 's' : ''}</span>
+              <span>${apartment.price_per_night} × {t('nights', {count: nights})}</span>
               <span>${totalPrice}</span>
             </div>
             <div className="flex justify-between font-semibold">
-              <span>Total</span>
+              <span>{t('total')}</span>
               <span>${totalPrice}</span>
             </div>
           </div>
@@ -151,7 +153,7 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
           disabled={!checkIn || !checkOut}
         >
           <Calendar className="h-4 w-4 mr-2" />
-          {checkIn && checkOut ? 'Book Now' : 'Select Dates to Book'}
+          {checkIn && checkOut ? t('bookNow') : t('selectDates')}
         </Button>
         
         <BookingModal

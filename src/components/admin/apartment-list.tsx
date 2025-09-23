@@ -40,6 +40,7 @@ import {
   Car,
   Waves
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface ApartmentListProps {
   apartments: Apartment[]
@@ -54,6 +55,8 @@ export function ApartmentList({
   onApartmentUpdated, 
   onApartmentDeleted 
 }: ApartmentListProps) {
+  const tCommon = useTranslations('common')
+  const tAdmin = useTranslations('admin')
   const [editingApartment, setEditingApartment] = React.useState<Apartment | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
 
@@ -102,9 +105,9 @@ export function ApartmentList({
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <div className="text-6xl mb-4">🏠</div>
-          <h3 className="text-xl font-semibold mb-2">No apartments yet</h3>
+          <h3 className="text-xl font-semibold mb-2">{tAdmin('list.noApartmentsTitle')}</h3>
           <p className="text-muted-foreground text-center mb-4">
-            Start by creating your first apartment listing
+            {tAdmin('list.noApartmentsDesc')}
           </p>
         </CardContent>
       </Card>
@@ -126,7 +129,7 @@ export function ApartmentList({
                 />
               ) : (
                 <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500">No image</span>
+                  <span className="text-gray-500">{tAdmin('list.noImage')}</span>
                 </div>
               )}
               <div className="absolute top-2 right-2">
@@ -134,12 +137,12 @@ export function ApartmentList({
                   {apartment.is_active ? (
                     <>
                       <Eye className="h-3 w-3 mr-1" />
-                      Active
+                      {tCommon('active')}
                     </>
                   ) : (
                     <>
                       <EyeOff className="h-3 w-3 mr-1" />
-                      Inactive
+                      {tCommon('inactive')}
                     </>
                   )}
                 </Badge>
@@ -216,7 +219,7 @@ export function ApartmentList({
                   className="flex-1"
                 >
                   <Edit className="h-4 w-4 mr-1" />
-                  Edit
+                  {tCommon('edit')}
                 </Button>
                 
                 <AlertDialog>
@@ -227,18 +230,18 @@ export function ApartmentList({
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Apartment</AlertDialogTitle>
+                      <AlertDialogTitle>{tAdmin('dialogs.deleteTitle')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete &quot;{apartment.title}&quot;? This action cannot be undone.
+                        {tAdmin('dialogs.deleteConfirm', {title: apartment.title})}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{tCommon('cancel')}</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => handleDelete(apartment.id)}
                         className="bg-red-600 hover:bg-red-700"
                       >
-                        Delete
+                        {tCommon('delete')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -251,11 +254,11 @@ export function ApartmentList({
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Apartment</DialogTitle>
+            <DialogTitle>{tAdmin('dialogs.editTitle')}</DialogTitle>
             <DialogDescription>
-              Update the apartment information
+              {tAdmin('dialogs.editDescription')}
             </DialogDescription>
           </DialogHeader>
           {editingApartment && (

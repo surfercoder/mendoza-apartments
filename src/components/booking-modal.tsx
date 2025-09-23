@@ -26,6 +26,7 @@ import { Apartment } from "@/lib/types"
 import { createBooking } from "@/lib/supabase/bookings"
 import { Loader2, Calendar, Users, DollarSign, MapPin } from "lucide-react"
 import { format } from "date-fns"
+import { useTranslations } from "next-intl"
 
 const bookingSchema = z.object({
   guest_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -57,6 +58,7 @@ export function BookingModal({
 }: BookingModalProps) {
   const [isLoading, setIsLoading] = React.useState(false)
   const [isSubmitted, setIsSubmitted] = React.useState(false)
+  const t = useTranslations('booking')
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -132,13 +134,9 @@ export function BookingModal({
         <DialogContent className="sm:max-w-md">
           <div className="text-center py-8">
             <div className="text-6xl mb-4">✅</div>
-            <h3 className="text-xl font-semibold mb-2">Booking Request Submitted!</h3>
-            <p className="text-muted-foreground mb-4">
-              Thank you! Florencia will contact you soon to confirm your booking.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              You will receive a confirmation email shortly.
-            </p>
+            <h3 className="text-xl font-semibold mb-2">{t('submittedTitle')}</h3>
+            <p className="text-muted-foreground mb-4">{t('submittedDesc')}</p>
+            <p className="text-sm text-muted-foreground">{t('submittedEmail')}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -147,17 +145,17 @@ export function BookingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Book Your Stay</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Complete your booking request for {apartment.title}
+            {t('description', {title: apartment.title})}
           </DialogDescription>
         </DialogHeader>
 
         {/* Booking Summary */}
         <div className="bg-muted/50 rounded-lg p-4 mb-6">
-          <h4 className="font-semibold mb-3">Booking Summary</h4>
+          <h4 className="font-semibold mb-3">{t('summary.title')}</h4>
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="flex items-center">
@@ -171,20 +169,20 @@ export function BookingModal({
                   <Calendar className="h-4 w-4 mr-2" />
                   {format(checkIn, "MMM dd")} - {format(checkOut, "MMM dd, yyyy")}
                 </span>
-                <span>{nights} night{nights > 1 ? 's' : ''}</span>
+                <span>{t('summary.nights', {count: nights})}</span>
               </div>
             )}
             <div className="flex items-center justify-between">
               <span className="flex items-center">
                 <Users className="h-4 w-4 mr-2" />
-                {guests} guest{guests > 1 ? 's' : ''}
+                {t('summary.guests', {count: guests})}
               </span>
             </div>
             {totalPrice > 0 && (
               <div className="flex items-center justify-between font-semibold pt-2 border-t">
                 <span className="flex items-center">
                   <DollarSign className="h-4 w-4 mr-2" />
-                  Total
+                  {t('summary.total')}
                 </span>
                 <span>${totalPrice}</span>
               </div>
@@ -199,9 +197,9 @@ export function BookingModal({
               name="guest_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name *</FormLabel>
+                  <FormLabel>{t('form.fullName')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
+                    <Input placeholder={t('form.fullNamePh')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -213,7 +211,7 @@ export function BookingModal({
               name="guest_email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address *</FormLabel>
+                  <FormLabel>{t('form.email')}</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="your.email@example.com" {...field} />
                   </FormControl>
@@ -227,7 +225,7 @@ export function BookingModal({
               name="guest_phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone Number *</FormLabel>
+                  <FormLabel>{t('form.phone')}</FormLabel>
                   <FormControl>
                     <Input placeholder="+54 261 123-4567" {...field} />
                   </FormControl>
@@ -241,10 +239,10 @@ export function BookingModal({
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Additional Notes (Optional)</FormLabel>
+                  <FormLabel>{t('form.notes')}</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Any special requests or questions..."
+                      placeholder={t('form.notesPh')}
                       rows={3}
                       {...field} 
                     />
@@ -262,7 +260,7 @@ export function BookingModal({
                 disabled={isLoading}
                 className="flex-1"
               >
-                Cancel
+                {t('actions.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -270,14 +268,14 @@ export function BookingModal({
                 className="flex-1"
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "Submitting..." : "Submit Booking Request"}
+                {isLoading ? t('actions.submitting') : t('actions.submit')}
               </Button>
             </div>
           </form>
         </Form>
 
         <div className="text-xs text-muted-foreground mt-4 p-3 bg-blue-50 rounded">
-          <strong>Note:</strong> This is a booking request. Florencia will contact you within 24 hours to confirm availability and provide payment instructions.
+          <strong>{t('note.title')}</strong> {t('note.content')}
         </div>
       </DialogContent>
     </Dialog>
