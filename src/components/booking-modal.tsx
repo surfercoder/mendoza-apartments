@@ -28,14 +28,20 @@ import { Loader2, Calendar, Users, DollarSign, MapPin } from "lucide-react"
 import { format } from "date-fns"
 import { useTranslations } from "next-intl"
 
-const bookingSchema = z.object({
-  guest_name: z.string().min(2, "Name must be at least 2 characters"),
-  guest_email: z.string().email("Please enter a valid email address"),
-  guest_phone: z.string().min(8, "Please enter a valid phone number"),
+// We'll create the schema inside the component to access translations
+const createBookingSchema = (tValidation: (key: string) => string) => z.object({
+  guest_name: z.string().min(2, tValidation('nameMinLength')),
+  guest_email: z.string().email(tValidation('emailInvalid')),
+  guest_phone: z.string().min(8, tValidation('phoneMinLength')),
   notes: z.string().optional(),
 })
 
-type BookingFormData = z.infer<typeof bookingSchema>
+type BookingFormData = {
+  guest_name: string;
+  guest_email: string;
+  guest_phone: string;
+  notes?: string;
+}
 
 interface BookingModalProps {
   apartment: Apartment
@@ -59,6 +65,9 @@ export function BookingModal({
   const [isLoading, setIsLoading] = React.useState(false)
   const [isSubmitted, setIsSubmitted] = React.useState(false)
   const t = useTranslations('booking')
+  const tSearch = useTranslations('search')
+  const tValidation = useTranslations('validation')
+  const bookingSchema = createBookingSchema(tValidation)
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -81,7 +90,7 @@ export function BookingModal({
 
   const onSubmit = async (data: BookingFormData) => {
     if (!checkIn || !checkOut) {
-      alert("Please select check-in and check-out dates")
+      alert(tSearch('selectDatesAlert'))
       return
     }
 
@@ -111,11 +120,11 @@ export function BookingModal({
           form.reset()
         }, 2000)
       } else {
-        alert("Failed to submit booking. Please try again.")
+        alert(tSearch('bookingFailed'))
       }
     } catch (error) {
       console.error("Error submitting booking:", error)
-      alert("Failed to submit booking. Please try again.")
+      alert(tSearch('bookingFailed'))
     } finally {
       setIsLoading(false)
     }
@@ -213,7 +222,7 @@ export function BookingModal({
                 <FormItem>
                   <FormLabel>{t('form.email')}</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="your.email@example.com" {...field} />
+                    <Input type="email" placeholder={tSearch('emailPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -227,7 +236,7 @@ export function BookingModal({
                 <FormItem>
                   <FormLabel>{t('form.phone')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="+54 261 123-4567" {...field} />
+                    <Input placeholder={tSearch('phonePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

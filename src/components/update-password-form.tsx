@@ -26,17 +26,20 @@ export function UpdatePasswordForm({
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
       // Redirect to admin dashboard after password update
       router.push("/admin");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const message = error instanceof Error && typeof error.message === 'string'
+        ? error.message
+        : 'An error occurred';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +55,12 @@ export function UpdatePasswordForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleForgotPassword}>
+          <form role="form" aria-label="Update password form" onSubmit={handleForgotPassword}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="password">New password</Label>
+                <Label data-testid="label" htmlFor="password">New password</Label>
                 <Input
+                  data-testid="password-input"
                   id="password"
                   type="password"
                   placeholder="New password"

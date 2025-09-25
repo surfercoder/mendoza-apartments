@@ -8,7 +8,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +40,10 @@ export function LoginForm({
       // Redirect to admin dashboard after successful login
       router.push("/admin");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const message = error instanceof Error && typeof error.message === 'string'
+        ? error.message
+        : 'An error occurred';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +53,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <h2 className="text-2xl">Login</h2>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>

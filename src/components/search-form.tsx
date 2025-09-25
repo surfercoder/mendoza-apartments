@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DateRangePicker } from "@/components/date-range-picker"
 import { SearchFilters } from "@/lib/types"
 import { Search, Users } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface SearchFormProps {
   onSearch: (filters: SearchFilters) => void
@@ -16,6 +17,7 @@ interface SearchFormProps {
 }
 
 export function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
+  const t = useTranslations('search')
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>()
   const [guests, setGuests] = React.useState<string>("1")
 
@@ -35,28 +37,28 @@ export function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="md:col-span-2">
             <Label htmlFor="dates" className="text-sm font-medium mb-2 block">
-              Check-in and Check-out Dates
+              {t('checkInOut')}
             </Label>
             <DateRangePicker
               date={dateRange}
               onDateChange={setDateRange}
-              placeholder="Select your stay dates"
+              placeholder={t('selectDates')}
             />
           </div>
           
           <div>
             <Label htmlFor="guests" className="text-sm font-medium mb-2 block">
-              Guests
+              {t('guests')}
             </Label>
             <Select value={guests} onValueChange={setGuests}>
               <SelectTrigger>
                 <Users className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Select guests" />
+                <SelectValue placeholder={t('selectGuests')} />
               </SelectTrigger>
               <SelectContent>
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                   <SelectItem key={num} value={num.toString()}>
-                    {num} guest{num > 1 ? 's' : ''}
+                    {t('guest', {count: num})}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -72,7 +74,7 @@ export function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
             className="px-8"
           >
             <Search className="h-4 w-4 mr-2" />
-            {isLoading ? "Searching..." : "Search Apartments"}
+            {isLoading ? t('searching') : t('searchApartments')}
           </Button>
         </div>
       </CardContent>

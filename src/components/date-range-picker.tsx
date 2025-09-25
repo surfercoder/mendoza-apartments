@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useTranslations } from "next-intl"
 
 interface DateRangePickerProps {
   className?: string
@@ -25,8 +26,10 @@ export function DateRangePicker({
   className,
   date,
   onDateChange,
-  placeholder = "Pick check-in and check-out dates"
+  placeholder
 }: DateRangePickerProps) {
+  const t = useTranslations('search')
+  const defaultPlaceholder = placeholder || t('pickDates')
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -50,7 +53,7 @@ export function DateRangePicker({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>{placeholder}</span>
+              <span>{defaultPlaceholder}</span>
             )}
           </Button>
         </PopoverTrigger>

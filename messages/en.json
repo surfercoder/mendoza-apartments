@@ -111,6 +111,32 @@
       "kitchen": "Kitchen"
     }
   },
+  "search": {
+    "checkInOut": "Check-in and Check-out Dates",
+    "selectDates": "Select your stay dates",
+    "pickDates": "Pick check-in and check-out dates",
+    "guests": "Guests",
+    "selectGuests": "Select guests",
+    "guest": "{count} guest{count, plural, one {} other {s}}",
+    "searching": "Searching...",
+    "searchApartments": "Search Apartments",
+    "selectDatesAlert": "Please select check-in and check-out dates",
+    "bookingFailed": "Failed to submit booking. Please try again.",
+    "emailPlaceholder": "your.email@example.com",
+    "phonePlaceholder": "+54 261 123-4567"
+  },
+  "validation": {
+    "nameMinLength": "Name must be at least 2 characters",
+    "emailInvalid": "Please enter a valid email address",
+    "phoneMinLength": "Please enter a valid phone number",
+    "titleRequired": "Title is required",
+    "descriptionMinLength": "Description must be at least 10 characters",
+    "priceMinValue": "Price must be greater than 0",
+    "guestsMinValue": "Must accommodate at least 1 guest",
+    "addressRequired": "Address is required",
+    "validEmailRequired": "Valid email is required",
+    "validUrlRequired": "Must be a valid URL"
+  },
   "booking": {
     "title": "Book Your Stay",
     "description": "Complete your booking request for {title}",

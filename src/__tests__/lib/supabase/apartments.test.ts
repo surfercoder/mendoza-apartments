@@ -1,0 +1,721 @@
+import {
+  getAvailableApartments,
+  getApartmentById,
+  getAllApartments,
+  createApartment,
+  updateApartment,
+  deleteApartment,
+  getApartmentAvailability,
+  createAvailabilityPeriod
+} from '@/lib/supabase/apartments'
+import { Apartment, SearchFilters, ApartmentAvailability } from '@/lib/types'
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+// Mock the client module
+jest.mock('@/lib/supabase/client', () => ({
+  createClient: jest.fn()
+}))
+
+import { createClient } from '@/lib/supabase/client'
+
+const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
+
+describe('lib/supabase/apartments', () => {
+  const originalEnv = process.env
+  const originalConsole = console
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    process.env = { ...originalEnv }
+    // Mock console methods
+    console.log = jest.fn()
+    console.error = jest.fn()
+    console.warn = jest.fn()
+  })
+
+  afterAll(() => {
+    process.env = originalEnv
+    console.log = originalConsole.log
+    console.error = originalConsole.error
+    console.warn = originalConsole.warn
+  })
+
+  const createMockApartment = (): Apartment => ({
+    id: 'apt-123',
+    title: 'Test Apartment',
+    description: 'A nice apartment',
+    characteristics: {
+      bedrooms: 2,
+      bathrooms: 1,
+      wifi: true,
+      kitchen: true
+    },
+    price_per_night: 100,
+    max_guests: 4,
+    address: '123 Test St',
+    images: ['image1.jpg'],
+    contact_email: 'test@example.com',
+    is_active: true,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z'
+  })
+
+  const createMockSupabaseClient = () => {
+    // Create a fresh mock chain for each test
+    let isAfterDelete = false
+
+    const mockChain = {
+      select: jest.fn(),
+      eq: jest.fn(),
+      gte: jest.fn(),
+      not: jest.fn(),
+      order: jest.fn(),
+      single: jest.fn(),
+      in: jest.fn(),
+      or: jest.fn(),
+      insert: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn()
+    }
+
+    // Configure chain methods to return the chain for method chaining
+    mockChain.select.mockImplementation(() => mockChain)
+    mockChain.gte.mockImplementation(() => mockChain)
+    mockChain.not.mockImplementation(() => mockChain)
+    mockChain.in.mockImplementation(() => mockChain)
+    mockChain.insert.mockImplementation(() => mockChain)
+    mockChain.update.mockImplementation(() => mockChain)
+
+    // Delete method sets a flag and returns chain
+    mockChain.delete.mockImplementation(() => {
+      isAfterDelete = true
+      return mockChain
+    })
+
+    // eq method behavior depends on context
+    mockChain.eq.mockImplementation(() => {
+      if (isAfterDelete) {
+        // After delete, eq is the final operation
+        return Promise.resolve({ error: null })
+      } else {
+        // In query building, eq returns chain
+        return mockChain
+      }
+    })
+
+    // order is always a final operation for queries
+    mockChain.order.mockImplementation(() => Promise.resolve({
+      data: [createMockApartment()],
+      error: null
+    }))
+
+    mockChain.single.mockImplementation(() => Promise.resolve({
+      data: createMockApartment(),
+      error: null
+    }))
+
+    mockChain.or.mockImplementation(() => Promise.resolve({
+      data: [],
+      error: null
+    }))
+
+    return {
+      from: jest.fn().mockReturnValue(mockChain)
+    }
+  }
+
+  describe('getAvailableApartments', () => {
+    it('should return apartments when env vars are set', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 2
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].title).toBe('Test Apartment')
+      expect(mockClient.from).toHaveBeenCalledWith('apartments')
+    })
+
+    it('should return empty array when env vars are missing', async () => {
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL
+      delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+      const result = await getAvailableApartments({
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1
+      })
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Missing Supabase environment variables!')
+    })
+
+    it('should filter by guest count', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 3
+      }
+
+      await getAvailableApartments(filters)
+
+      expect(mockClient.from().gte).toHaveBeenCalledWith('max_guests', 3)
+    })
+
+    it('should check availability when dates are provided', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const checkIn = new Date('2023-06-01')
+      const checkOut = new Date('2023-06-07')
+
+      const filters: SearchFilters = {
+        checkIn,
+        checkOut,
+        guests: 2
+      }
+
+      await getAvailableApartments(filters)
+
+      expect(console.log).toHaveBeenCalledWith('📅 Checking availability for dates:', '2023-06-01', 'to', '2023-06-07')
+    })
+
+    it('should handle query errors gracefully', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({
+        data: null,
+        error: { message: 'Database error', code: '500' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getAvailableApartments({
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1
+      })
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Supabase query error:', expect.any(Object))
+    })
+
+    it('should handle unexpected errors', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getAvailableApartments({
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1
+      })
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Unexpected error fetching available apartments:', expect.any(Object))
+    })
+  })
+
+  describe('getApartmentById', () => {
+    it('should return apartment when found', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentById('apt-123')
+
+      expect(result?.id).toBe('apt-123')
+      expect(mockClient.from).toHaveBeenCalledWith('apartments')
+      expect(mockClient.from().single).toHaveBeenCalled()
+    })
+
+    it('should return null when apartment not found', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().single.mockResolvedValue({
+        data: null,
+        error: { message: 'No rows returned', code: 'PGRST116' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentById('non-existent')
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error fetching apartment:', expect.any(Object))
+    })
+
+    it('should handle unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentById('apt-123')
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error fetching apartment by id:', expect.any(Error))
+    })
+  })
+
+  describe('getAllApartments', () => {
+    it('should return all apartments when env vars are set', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getAllApartments()
+
+      expect(result).toHaveLength(1)
+      expect(console.log).toHaveBeenCalledWith('🔄 Fetching apartments from Supabase...')
+      expect(console.log).toHaveBeenCalledWith('✅ Successfully fetched', 1, 'apartments')
+    })
+
+    it('should return empty array when env vars are missing', async () => {
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL
+      delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+      const result = await getAllApartments()
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Missing Supabase environment variables!')
+    })
+  })
+
+  describe('createApartment', () => {
+    it('should create apartment successfully', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const newApartment = {
+        title: 'New Apartment',
+        description: 'A new apartment',
+        characteristics: { bedrooms: 1 },
+        price_per_night: 80,
+        max_guests: 2,
+        address: '456 New St',
+        images: [],
+        contact_email: 'new@example.com',
+        is_active: true
+      }
+
+      const result = await createApartment(newApartment)
+
+      expect(result?.title).toBe('Test Apartment') // Mock returns the default apartment
+      expect(mockClient.from).toHaveBeenCalledWith('apartments')
+      expect(mockClient.from().insert).toHaveBeenCalledWith([newApartment])
+    })
+
+    it('should handle creation errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().single.mockResolvedValue({
+        data: null,
+        error: { message: 'Insert failed' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const newApartment = {
+        title: 'New Apartment',
+        description: 'A new apartment',
+        characteristics: {},
+        price_per_night: 80,
+        max_guests: 2,
+        address: '456 New St',
+        images: [],
+        contact_email: 'new@example.com',
+        is_active: true
+      }
+
+      const result = await createApartment(newApartment)
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error creating apartment:', expect.any(Object))
+    })
+  })
+
+  describe('updateApartment', () => {
+    it('should update apartment successfully', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const updates = { title: 'Updated Title' }
+      const result = await updateApartment('apt-123', updates)
+
+      expect(result?.title).toBe('Test Apartment')
+      expect(mockClient.from().update).toHaveBeenCalledWith(updates)
+    })
+
+    it('should handle update errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().single.mockResolvedValue({
+        data: null,
+        error: { message: 'Update failed' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await updateApartment('apt-123', { title: 'Updated' })
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error updating apartment:', expect.any(Object))
+    })
+  })
+
+  describe('deleteApartment', () => {
+    it('should delete apartment successfully', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await deleteApartment('apt-123')
+
+      expect(result).toBe(true)
+      expect(mockClient.from().eq).toHaveBeenCalledWith('id', 'apt-123')
+    })
+
+    it('should handle delete errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().eq.mockResolvedValue({
+        error: { message: 'Delete failed' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await deleteApartment('apt-123')
+
+      expect(result).toBe(false)
+      expect(console.error).toHaveBeenCalledWith('Error deleting apartment:', expect.any(Object))
+    })
+  })
+
+  describe('getApartmentAvailability', () => {
+    it('should return availability periods', async () => {
+      const mockAvailability: ApartmentAvailability = {
+        id: 'avail-123',
+        apartment_id: 'apt-123',
+        start_date: '2023-06-01',
+        end_date: '2023-06-07',
+        is_available: true,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z'
+      }
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({
+        data: [mockAvailability],
+        error: null
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentAvailability('apt-123')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].apartment_id).toBe('apt-123')
+    })
+
+    it('should handle availability query errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({
+        data: null,
+        error: { message: 'Query failed' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentAvailability('apt-123')
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('Error fetching apartment availability:', expect.any(Object))
+    })
+  })
+
+  describe('createAvailabilityPeriod', () => {
+    it('should create availability period successfully', async () => {
+      const mockClient = createMockSupabaseClient()
+      const mockAvailability: ApartmentAvailability = {
+        id: 'avail-123',
+        apartment_id: 'apt-123',
+        start_date: '2023-06-01',
+        end_date: '2023-06-07',
+        is_available: true,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z'
+      }
+
+      mockClient.from().single.mockResolvedValue({
+        data: mockAvailability,
+        error: null
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const newAvailability = {
+        apartment_id: 'apt-123',
+        start_date: '2023-06-01',
+        end_date: '2023-06-07',
+        is_available: true
+      }
+
+      const result = await createAvailabilityPeriod(newAvailability)
+
+      expect(result?.apartment_id).toBe('apt-123')
+      expect(mockClient.from().insert).toHaveBeenCalledWith([newAvailability])
+    })
+
+    it('should handle creation errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().single.mockResolvedValue({
+        data: null,
+        error: { message: 'Insert failed' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const newAvailability = {
+        apartment_id: 'apt-123',
+        start_date: '2023-06-01',
+        end_date: '2023-06-07',
+        is_available: true
+      }
+
+      const result = await createAvailabilityPeriod(newAvailability)
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error creating availability period:', expect.any(Object))
+    })
+
+    it('should handle unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const newAvailability = {
+        apartment_id: 'apt-123',
+        start_date: '2023-06-01',
+        end_date: '2023-06-07',
+        is_available: true
+      }
+
+      const result = await createAvailabilityPeriod(newAvailability)
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error creating availability period:', expect.any(Error))
+    })
+  })
+
+  // Additional tests for edge cases to improve coverage
+  describe('getAvailableApartments - additional edge cases', () => {
+    it('should handle availability checking with no unavailable apartments', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      // Mock availability check to return empty array
+      mockClient.from().or.mockResolvedValue({
+        data: [],
+        error: null
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-06-01'),
+        checkOut: new Date('2023-06-07'),
+        guests: 2
+      }
+
+      await getAvailableApartments(filters)
+
+      expect(console.log).toHaveBeenCalledWith('📅 Checking availability for dates:', '2023-06-01', 'to', '2023-06-07')
+    })
+
+    it('should handle availability error gracefully', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      // Mock availability check to return error
+      mockClient.from().or.mockResolvedValue({
+        data: null,
+        error: { message: 'Table does not exist' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-06-01'),
+        checkOut: new Date('2023-06-07'),
+        guests: 2
+      }
+
+      await getAvailableApartments(filters)
+
+      expect(console.warn).toHaveBeenCalledWith('⚠️ Error checking availability (table may not exist yet):', 'Table does not exist')
+      expect(console.warn).toHaveBeenCalledWith('⚠️ Error checking bookings (table may not exist yet):', 'Table does not exist')
+    })
+
+    it('should exclude unavailable apartments when checking availability', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      // Mock availability check to return some unavailable apartments
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [{ apartment_id: 'apt-unavailable' }],
+        error: null
+      }).mockResolvedValueOnce({
+        data: [{ apartment_id: 'apt-booked' }],
+        error: null
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-06-01'),
+        checkOut: new Date('2023-06-07'),
+        guests: 2
+      }
+
+      await getAvailableApartments(filters)
+
+      expect(console.log).toHaveBeenCalledWith('🚫 Excluding', 2, 'unavailable apartments')
+      expect(mockClient.from().not).toHaveBeenCalledWith('id', 'in', '(apt-unavailable,apt-booked)')
+    })
+
+    it('should log successful results', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({
+        data: [createMockApartment(), createMockApartment()],
+        error: null
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      await getAvailableApartments({
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1
+      })
+
+      expect(console.log).toHaveBeenCalledWith('✅ Found', 2, 'available apartments')
+    })
+  })
+
+  describe('getAllApartments - additional edge cases', () => {
+    it('should handle unexpected errors', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getAllApartments()
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Unexpected error fetching apartments:', expect.any(Object))
+    })
+
+    it('should handle query errors', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({
+        data: null,
+        error: { message: 'Query failed', details: 'Connection error', hint: 'Check network', code: '500' }
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getAllApartments()
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('❌ Supabase query error:', expect.any(Object))
+    })
+  })
+
+  describe('Error handling edge cases', () => {
+    it('should handle createApartment unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await createApartment({
+        title: 'Test',
+        description: 'Test',
+        characteristics: {},
+        price_per_night: 100,
+        max_guests: 2,
+        address: 'Test',
+        images: [],
+        contact_email: 'test@example.com',
+        is_active: true
+      })
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error creating apartment:', expect.any(Error))
+    })
+
+    it('should handle updateApartment unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await updateApartment('apt-123', { title: 'Updated' })
+
+      expect(result).toBeNull()
+      expect(console.error).toHaveBeenCalledWith('Error updating apartment:', expect.any(Error))
+    })
+
+    it('should handle deleteApartment unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await deleteApartment('apt-123')
+
+      expect(result).toBe(false)
+      expect(console.error).toHaveBeenCalledWith('Error deleting apartment:', expect.any(Error))
+    })
+
+    it('should handle getApartmentAvailability unexpected errors', async () => {
+      const mockClient = createMockSupabaseClient()
+      mockClient.from.mockImplementation(() => {
+        throw new Error('Unexpected error')
+      })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const result = await getApartmentAvailability('apt-123')
+
+      expect(result).toEqual([])
+      expect(console.error).toHaveBeenCalledWith('Error fetching apartment availability:', expect.any(Error))
+    })
+  })
+})

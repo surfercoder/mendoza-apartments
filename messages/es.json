@@ -111,6 +111,32 @@
       "kitchen": "Cocina"
     }
   },
+  "search": {
+    "checkInOut": "Fechas de entrada y salida",
+    "selectDates": "Seleccioná las fechas de tu estadía",
+    "pickDates": "Elegí fechas de entrada y salida",
+    "guests": "Huéspedes",
+    "selectGuests": "Seleccionar huéspedes",
+    "guest": "{count} huésped{count, plural, one {} other {es}}",
+    "searching": "Buscando...",
+    "searchApartments": "Buscar departamentos",
+    "selectDatesAlert": "Por favor seleccioná fechas de entrada y salida",
+    "bookingFailed": "Error al enviar la reserva. Por favor intentá de nuevo.",
+    "emailPlaceholder": "tu.email@ejemplo.com",
+    "phonePlaceholder": "+54 261 123-4567"
+  },
+  "validation": {
+    "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+    "emailInvalid": "Por favor ingresá un email válido",
+    "phoneMinLength": "Por favor ingresá un teléfono válido",
+    "titleRequired": "El título es obligatorio",
+    "descriptionMinLength": "La descripción debe tener al menos 10 caracteres",
+    "priceMinValue": "El precio debe ser mayor a 0",
+    "guestsMinValue": "Debe alojar al menos 1 huésped",
+    "addressRequired": "La dirección es obligatoria",
+    "validEmailRequired": "Se requiere un email válido",
+    "validUrlRequired": "Debe ser una URL válida"
+  },
   "booking": {
     "title": "Reservá tu estadía",
     "description": "Completá tu solicitud de reserva para {title}",

@@ -1,0 +1,65 @@
+// Mock next-intl/routing
+jest.mock('next-intl/routing', () => ({
+  defineRouting: jest.fn((config) => config)
+}))
+
+import { routing } from '@/i18n/routing'
+
+// const mockDefineRouting = defineRouting as jest.MockedFunction<typeof defineRouting>
+
+describe('i18n/routing', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should export routing configuration', () => {
+    expect(routing).toBeDefined()
+  })
+
+  it('should configure locales correctly', () => {
+    expect(routing.locales).toEqual(['en', 'es'])
+    expect(routing.locales).toHaveLength(2)
+    expect(routing.locales).toContain('en')
+    expect(routing.locales).toContain('es')
+  })
+
+  it('should set default locale to Spanish', () => {
+    expect(routing.defaultLocale).toBe('es')
+  })
+
+  it('should set locale prefix to as-needed', () => {
+    expect(routing.localePrefix).toBe('as-needed')
+  })
+
+  it('should have expected routing configuration values', () => {
+    // Test the actual configuration values rather than internal implementation
+    expect(routing).toHaveProperty('locales', ['en', 'es'])
+    expect(routing).toHaveProperty('defaultLocale', 'es')
+    expect(routing).toHaveProperty('localePrefix', 'as-needed')
+  })
+
+  it('should have proper routing configuration structure', () => {
+    expect(routing).toEqual({
+      locales: ['en', 'es'],
+      defaultLocale: 'es',
+      localePrefix: 'as-needed'
+    })
+  })
+
+  it('should support both English and Spanish locales', () => {
+    const supportedLocales = routing.locales
+
+    expect(supportedLocales).toContain('en')
+    expect(supportedLocales).toContain('es')
+    expect(supportedLocales.filter(locale => locale === 'en')).toHaveLength(1)
+    expect(supportedLocales.filter(locale => locale === 'es')).toHaveLength(1)
+  })
+
+  it('should not contain unsupported locales', () => {
+    const unsupportedLocales = ['fr', 'de', 'it', 'pt']
+
+    unsupportedLocales.forEach(locale => {
+      expect(routing.locales).not.toContain(locale)
+    })
+  })
+})

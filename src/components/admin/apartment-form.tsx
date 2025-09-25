@@ -26,17 +26,18 @@ import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { uploadApartmentImage } from "@/lib/supabase/storage"
 
-const apartmentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  price_per_night: z.number().min(1, "Price must be greater than 0"),
-  max_guests: z.number().min(1, "Must accommodate at least 1 guest"),
-  address: z.string().min(1, "Address is required"),
-  contact_email: z.string().email("Valid email is required"),
+// We'll create the schema inside the component to access translations
+const createApartmentSchema = (tValidation: (key: string) => string) => z.object({
+  title: z.string().min(1, tValidation('titleRequired')),
+  description: z.string().min(10, tValidation('descriptionMinLength')),
+  price_per_night: z.number().min(1, tValidation('priceMinValue')),
+  max_guests: z.number().min(1, tValidation('guestsMinValue')),
+  address: z.string().min(1, tValidation('addressRequired')),
+  contact_email: z.string().email(tValidation('validEmailRequired')),
   contact_phone: z.string().optional(),
   whatsapp_number: z.string().optional(),
   is_active: z.boolean(),
-  images: z.array(z.string().url("Must be a valid URL")).optional(),
+  images: z.array(z.string().url(tValidation('validUrlRequired'))).optional(),
   characteristics: z.object({
     bedrooms: z.number().optional(),
     bathrooms: z.number().optional(),
@@ -54,7 +55,33 @@ const apartmentSchema = z.object({
   }),
 })
 
-type ApartmentFormData = z.infer<typeof apartmentSchema>
+type ApartmentFormData = {
+  title: string;
+  description: string;
+  price_per_night: number;
+  max_guests: number;
+  address: string;
+  contact_email: string;
+  contact_phone?: string;
+  whatsapp_number?: string;
+  is_active: boolean;
+  images?: string[];
+  characteristics: {
+    bedrooms?: number;
+    bathrooms?: number;
+    wifi?: boolean;
+    kitchen?: boolean;
+    air_conditioning?: boolean;
+    parking?: boolean;
+    pool?: boolean;
+    balcony?: boolean;
+    terrace?: boolean;
+    garden?: boolean;
+    bbq?: boolean;
+    washing_machine?: boolean;
+    mountain_view?: boolean;
+  };
+}
 
 interface ApartmentFormProps {
   apartment?: Apartment
@@ -64,6 +91,8 @@ interface ApartmentFormProps {
 
 export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormProps) {
   const t = useTranslations('admin.form')
+  const tValidation = useTranslations('validation')
+  const apartmentSchema = createApartmentSchema(tValidation)
   const [isLoading, setIsLoading] = React.useState(false)
   const [imageUrls, setImageUrls] = React.useState<string[]>(apartment?.images || [])
   const [isUploading, setIsUploading] = React.useState(false)

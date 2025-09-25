@@ -1,21 +1,21 @@
 import { createClient } from '@/lib/supabase/client';
 import { Apartment, ApartmentAvailability, SearchFilters } from '@/lib/types';
 
-const supabase = createClient();
-
 export async function getAvailableApartments(filters: SearchFilters): Promise<Apartment[]> {
   try {
     // Check environment variables first
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
+
     if (!url || !key) {
       console.error('❌ Missing Supabase environment variables!');
       console.error('NEXT_PUBLIC_SUPABASE_URL:', url ? '✅ Set' : '❌ Missing');
       console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', key ? '✅ Set' : '❌ Missing');
       return [];
     }
-    
+
+    const supabase = createClient();
+
     let query = supabase
       .from('apartments')
       .select('*')
@@ -87,6 +87,7 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
 
 export async function getApartmentById(id: string): Promise<Apartment | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartments')
       .select('*')
@@ -120,7 +121,8 @@ export async function getAllApartments(): Promise<Apartment[]> {
     }
 
     console.log('🔄 Fetching apartments from Supabase...');
-    
+
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartments')
       .select('*')
@@ -150,6 +152,7 @@ export async function getAllApartments(): Promise<Apartment[]> {
 
 export async function createApartment(apartment: Omit<Apartment, 'id' | 'created_at' | 'updated_at'>): Promise<Apartment | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartments')
       .insert([apartment])
@@ -170,6 +173,7 @@ export async function createApartment(apartment: Omit<Apartment, 'id' | 'created
 
 export async function updateApartment(id: string, updates: Partial<Apartment>): Promise<Apartment | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartments')
       .update(updates)
@@ -191,6 +195,7 @@ export async function updateApartment(id: string, updates: Partial<Apartment>): 
 
 export async function deleteApartment(id: string): Promise<boolean> {
   try {
+    const supabase = createClient();
     const { error } = await supabase
       .from('apartments')
       .delete()
@@ -210,6 +215,7 @@ export async function deleteApartment(id: string): Promise<boolean> {
 
 export async function getApartmentAvailability(apartmentId: string): Promise<ApartmentAvailability[]> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartment_availability')
       .select('*')
@@ -230,6 +236,7 @@ export async function getApartmentAvailability(apartmentId: string): Promise<Apa
 
 export async function createAvailabilityPeriod(availability: Omit<ApartmentAvailability, 'id' | 'created_at' | 'updated_at'>): Promise<ApartmentAvailability | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('apartment_availability')
       .insert([availability])

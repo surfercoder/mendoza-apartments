@@ -131,12 +131,13 @@ export default function AdminDashboard() {
             <p className="text-muted-foreground">{t('dashboard.createEditManage')}</p>
           </div>
           
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {tc('addNewApartment')}
+          </Button>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {tc('addNewApartment')}
-              </Button>
+              <div />
             </DialogTrigger>
             <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>

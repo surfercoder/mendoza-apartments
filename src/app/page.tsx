@@ -107,10 +107,7 @@ export default function HomePage() {
           {hasSearched && (
             <div className="mb-8">
               <h3 className="text-2xl font-semibold mb-2">
-                {apartments.length > 0 
-                  ? t('results.found', {count: apartments.length})
-                  : t('results.none')
-                }
+                {t('results.found', {count: apartments.length})}
               </h3>
               {currentFilters.checkIn && currentFilters.checkOut && (
                 <p className="text-muted-foreground">
@@ -135,7 +132,7 @@ export default function HomePage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="animate-pulse">
+                <div key={i} className="animate-pulse" data-testid="animate-pulse">
                   <div className="bg-muted rounded-lg h-64 mb-4"></div>
                   <div className="bg-muted rounded h-4 mb-2"></div>
                   <div className="bg-muted rounded h-4 w-3/4"></div>
