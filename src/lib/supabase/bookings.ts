@@ -43,7 +43,9 @@ export async function getAllBookings(): Promise<Booking[]> {
         *,
         apartments (
           title,
-          address
+          address,
+          whatsapp_number,
+          contact_phone
         )
       `)
       .order('created_at', { ascending: false });

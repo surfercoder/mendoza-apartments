@@ -92,9 +92,9 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   85.00,
   2,
   'San Martín 1234, Mendoza Capital',
-  'florencia@mendozaapartments.com',
-  '+54 261 123-4567',
-  '+54 9 261 123-4567'
+  'florcaliri@gmail.com',
+  '+5492616540387',
+  '+5492616540387'
 ),
 (
   'Luxury Penthouse with Pool',
@@ -103,9 +103,9 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   250.00,
   6,
   'Av. Las Heras 567, Mendoza Capital',
-  'florencia@mendozaapartments.com',
-  '+54 261 123-4567',
-  '+54 9 261 123-4567'
+  'florcaliri@gmail.com',
+  '+5492616540387',
+  '+5492616540387'
 ),
 (
   'Family-Friendly House',
@@ -114,7 +114,7 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   180.00,
   8,
   'Barrio Bombal, Mendoza',
-  'florencia@mendozaapartments.com',
-  '+54 261 123-4567',
-  '+54 9 261 123-4567'
+  'florcaliri@gmail.com',
+  '+5492616540387',
+  '+5492616540387'
 );

@@ -219,7 +219,9 @@ describe('lib/supabase/bookings', () => {
         *,
         apartments (
           title,
-          address
+          address,
+          whatsapp_number,
+          contact_phone
         )
       `)
     })

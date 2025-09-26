@@ -106,9 +106,9 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
       price_per_night: apartment?.price_per_night || 0,
       max_guests: apartment?.max_guests || 1,
       address: apartment?.address || "",
-      contact_email: apartment?.contact_email || "florencia@mendozaapartments.com",
-      contact_phone: apartment?.contact_phone || "",
-      whatsapp_number: apartment?.whatsapp_number || "",
+      contact_email: apartment?.contact_email || "florcaliri@gmail.com",
+      contact_phone: apartment?.contact_phone || "+5492616540387",
+      whatsapp_number: apartment?.whatsapp_number || "+5492616540387",
       is_active: apartment?.is_active ?? true,
       images: apartment?.images || [],
       characteristics: {
@@ -313,7 +313,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   <FormItem>
                     <FormLabel>{t('contactEmail')}</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="florencia@mendozaapartments.com" {...field} />
+                      <Input type="email" placeholder="florcaliri@gmail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -327,7 +327,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   <FormItem>
                     <FormLabel>{t('contactPhone')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="+54 261 123-4567" {...field} />
+                      <Input placeholder="+5492616540387" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -341,7 +341,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   <FormItem>
                     <FormLabel>{t('whatsappNumber')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="+54 9 261 123-4567" {...field} />
+                      <Input placeholder="+5492616540387" {...field} />
                     </FormControl>
                     <FormDescription>
                       {t('whatsappHint')}

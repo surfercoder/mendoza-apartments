@@ -123,7 +123,7 @@
     "selectDatesAlert": "Por favor seleccioná fechas de entrada y salida",
     "bookingFailed": "Error al enviar la reserva. Por favor intentá de nuevo.",
     "emailPlaceholder": "tu.email@ejemplo.com",
-    "phonePlaceholder": "+54 261 123-4567"
+    "phonePlaceholder": "+5492616540387"
   },
   "validation": {
     "nameMinLength": "El nombre debe tener al menos 2 caracteres",

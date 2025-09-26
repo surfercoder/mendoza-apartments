@@ -123,7 +123,7 @@
     "selectDatesAlert": "Please select check-in and check-out dates",
     "bookingFailed": "Failed to submit booking. Please try again.",
     "emailPlaceholder": "your.email@example.com",
-    "phonePlaceholder": "+54 261 123-4567"
+    "phonePlaceholder": "+5492616540387"
   },
   "validation": {
     "nameMinLength": "Name must be at least 2 characters",

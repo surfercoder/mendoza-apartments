@@ -23,10 +23,10 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Apartment } from "@/lib/types"
-import { createBooking } from "@/lib/supabase/bookings"
-import { Loader2, Calendar, Users, DollarSign, MapPin } from "lucide-react"
+import { Loader2, Calendar, Users, DollarSign, MapPin, MessageCircle } from "lucide-react"
 import { format } from "date-fns"
 import { useTranslations } from "next-intl"
+import { openWhatsAppChat } from "@/lib/whatsapp"
 
 // We'll create the schema inside the component to access translations
 const createBookingSchema = (tValidation: (key: string) => string) => z.object({
@@ -105,22 +105,36 @@ export function BookingModal({
         check_out: checkOut.toISOString().split('T')[0],
         total_guests: guests,
         total_price: totalPrice,
-        status: 'pending' as const,
         notes: data.notes || undefined,
       }
 
-      const result = await createBooking(bookingData)
+      // Submit booking via API (which will also send emails)
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      })
+
+      const result = await response.json()
       
-      if (result) {
+      if (result.success) {
         setIsSubmitted(true)
+        
+        // Open WhatsApp chat after successful submission
+        setTimeout(() => {
+          openWhatsAppChat(apartment, result.booking)
+        }, 1000)
+        
         setTimeout(() => {
           onSuccess()
           onClose()
           setIsSubmitted(false)
           form.reset()
-        }, 2000)
+        }, 3000) // Give more time for WhatsApp to open
       } else {
-        alert(tSearch('bookingFailed'))
+        alert(result.error || tSearch('bookingFailed'))
       }
     } catch (error) {
       console.error("Error submitting booking:", error)
@@ -145,7 +159,11 @@ export function BookingModal({
             <div className="text-6xl mb-4">✅</div>
             <h3 className="text-xl font-semibold mb-2">{t('submittedTitle')}</h3>
             <p className="text-muted-foreground mb-4">{t('submittedDesc')}</p>
-            <p className="text-sm text-muted-foreground">{t('submittedEmail')}</p>
+            <p className="text-sm text-muted-foreground mb-4">{t('submittedEmail')}</p>
+            <div className="flex items-center justify-center gap-2 text-sm text-green-600">
+              <MessageCircle className="h-4 w-4" />
+              <span>WhatsApp chat opened for payment coordination</span>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

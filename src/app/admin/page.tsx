@@ -14,11 +14,13 @@ import {
 } from "@/components/ui/dialog"
 import { ApartmentForm } from "@/components/admin/apartment-form"
 import { ApartmentList } from "@/components/admin/apartment-list"
+import { ReservationsList } from "@/components/admin/reservations-list"
 import { getAllApartments } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
-import { Plus, Home, Calendar, Users } from "lucide-react"
+import { Plus, Home, Calendar, Users, BookOpen } from "lucide-react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AdminDashboard() {
   const t = useTranslations('admin')
@@ -124,43 +126,65 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <Tabs defaultValue="apartments" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="apartments" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Apartments
+          </TabsTrigger>
+          <TabsTrigger value="reservations" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Reservations
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="apartments" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.apartmentsManagement')}</h2>
+              <p className="text-muted-foreground">{t('dashboard.createEditManage')}</p>
+            </div>
+            
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {tc('addNewApartment')}
+            </Button>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <div />
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{t('dialogs.createTitle')}</DialogTitle>
+                  <DialogDescription>
+                    {t('dialogs.createDescription')}
+                  </DialogDescription>
+                </DialogHeader>
+                <ApartmentForm 
+                  onSuccess={handleApartmentCreated}
+                  onCancel={() => setIsCreateDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <ApartmentList
+            apartments={apartments}
+            isLoading={isLoading}
+            onApartmentUpdated={handleApartmentUpdated}
+            onApartmentDeleted={handleApartmentDeleted}
+          />
+        </TabsContent>
+
+        <TabsContent value="reservations" className="space-y-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.apartmentsManagement')}</h2>
-            <p className="text-muted-foreground">{t('dashboard.createEditManage')}</p>
+            <h2 className="text-3xl font-bold tracking-tight">Reservations Management</h2>
+            <p className="text-muted-foreground">Manage all booking requests and reservations</p>
           </div>
           
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            {tc('addNewApartment')}
-          </Button>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <div />
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[1200px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{t('dialogs.createTitle')}</DialogTitle>
-                <DialogDescription>
-                  {t('dialogs.createDescription')}
-                </DialogDescription>
-              </DialogHeader>
-              <ApartmentForm 
-                onSuccess={handleApartmentCreated}
-                onCancel={() => setIsCreateDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <ApartmentList
-          apartments={apartments}
-          isLoading={isLoading}
-          onApartmentUpdated={handleApartmentUpdated}
-          onApartmentDeleted={handleApartmentDeleted}
-        />
-      </div>
+          <ReservationsList />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
