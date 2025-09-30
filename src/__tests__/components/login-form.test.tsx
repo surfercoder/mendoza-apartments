@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const mockPush = jest.fn()
+const mockReplace = jest.fn()
+const mockRefresh = jest.fn()
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 
@@ -24,11 +26,11 @@ describe('LoginForm', () => {
     jest.clearAllMocks()
     mockUseRouter.mockReturnValue({
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       prefetch: jest.fn(),
       back: jest.fn(),
       forward: jest.fn(),
-      refresh: jest.fn()
+      refresh: mockRefresh
     } as any)
   })
 
@@ -117,7 +119,9 @@ describe('LoginForm', () => {
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/admin')
+      // We now use replace + refresh for robust redirect in prod
+      expect(mockReplace).toHaveBeenCalledWith('/admin')
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 

@@ -26,7 +26,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { 
   Calendar, 
@@ -226,20 +225,22 @@ export function ReservationsList() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        data-testid="view-button"
+                        onClick={() => {
+                          setSelectedReservation(reservation)
+                          setIsDetailOpen(true)
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
                       <Dialog open={isDetailOpen && selectedReservation?.id === reservation.id} onOpenChange={(open) => {
                         setIsDetailOpen(open)
                         if (!open) setSelectedReservation(null)
                       }}>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedReservation(reservation)}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                        </DialogTrigger>
                         <DialogContent className="sm:max-w-[600px]">
                           <DialogHeader>
                             <DialogTitle>Reservation Details</DialogTitle>

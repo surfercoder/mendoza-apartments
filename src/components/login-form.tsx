@@ -37,8 +37,10 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-      // Redirect to admin dashboard after successful login
-      router.push("/admin");
+      // Redirect to admin dashboard after successful login.
+      // Use replace + refresh to avoid stale middleware/session race in prod.
+      router.replace("/admin");
+      router.refresh();
     } catch (error: unknown) {
       const message = error instanceof Error && typeof error.message === 'string'
         ? error.message
@@ -62,9 +64,9 @@ export function LoginForm({
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="login-email">Email</Label>
                 <Input
-                  id="email"
+                  id="login-email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -74,7 +76,7 @@ export function LoginForm({
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="login-password">Password</Label>
                   <Link
                     href="/auth/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
@@ -83,7 +85,7 @@ export function LoginForm({
                   </Link>
                 </div>
                 <Input
-                  id="password"
+                  id="login-password"
                   type="password"
                   required
                   value={password}

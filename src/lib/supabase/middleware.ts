@@ -2,8 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+export async function updateSession(request: NextRequest, response?: NextResponse) {
+  // Use provided response to preserve existing headers/cookies (e.g., from other middleware)
+  const supabaseResponse = response ?? NextResponse.next({
     request,
   });
 
@@ -21,12 +22,9 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          // Persist cookies on the incoming request for subsequent middleware runs
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          // Critically, set cookies (with options) on the SAME response object
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );

@@ -1,4 +1,9 @@
-import '@testing-library/jest-dom'
+export {}
+// Only load DOM-specific matchers in jsdom environment
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@testing-library/jest-dom')
+}
 
 // Extend global types
 declare global {
@@ -7,14 +12,16 @@ declare global {
 }
 
 // Global mocks for JSdom compatibility
-Object.defineProperty(HTMLFormElement.prototype, 'requestSubmit', {
-  value: jest.fn(),
-  writable: true,
-  configurable: true
-})
+if (typeof HTMLFormElement !== 'undefined') {
+  Object.defineProperty(HTMLFormElement.prototype, 'requestSubmit', {
+    value: jest.fn(),
+    writable: true,
+    configurable: true
+  })
+}
 
-// Mock window.location if not already mocked
-if (!window.location.origin) {
+// Mock window.location if not already mocked (only in jsdom environment)
+if (typeof window !== 'undefined' && !window.location.origin) {
   Object.defineProperty(window, 'location', {
     value: { origin: 'https://test.com' },
     writable: true,
@@ -23,10 +30,11 @@ if (!window.location.origin) {
 }
 
 // Global mock for next-intl when not already mocked
-global.mockTranslations = global.mockTranslations || jest.fn((key: string) => key)
+const g = globalThis as unknown as { mockTranslations?: jest.Mock; mockUseForm?: jest.Mock }
+g.mockTranslations = g.mockTranslations || jest.fn((key: string) => key)
 
 // Global mock for react-hook-form when not mocked
-global.mockUseForm = global.mockUseForm || jest.fn(() => ({
+g.mockUseForm = g.mockUseForm || jest.fn(() => ({
   register: jest.fn(),
   handleSubmit: jest.fn((onValid) => jest.fn((e) => {
     e?.preventDefault?.()

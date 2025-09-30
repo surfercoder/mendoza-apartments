@@ -6,28 +6,22 @@ import { routing } from "@/i18n/routing";
 const intlMiddleware = createMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  // First ensure Supabase session cookies are in sync
-  const supaResponse = await updateSession(request);
-  // Then run i18n middleware to handle locale detection/routing
-  const intlResponse = intlMiddleware(request);
-  const response = intlResponse instanceof Promise ? await intlResponse : intlResponse;
-  // Merge cookies from Supabase into the i18n response
-  const supaCookies = supaResponse.cookies.getAll();
+  // Run i18n middleware first to produce the base response
+  const intlResult = intlMiddleware(request);
+  const baseResponse = intlResult instanceof Promise ? await intlResult : intlResult;
 
-  for (const c of supaCookies) {
-    // getAll() returns objects with name and value (options may not be included),
-    // so we set them individually to the outgoing response.
-    response.cookies.set(c.name, c.value);
-  }
+  // Pass the existing response into Supabase session updater to avoid losing headers/cookies
+  const responseWithSession = await updateSession(request, baseResponse as NextResponse);
+
   // Ensure default locale is Spanish for first-time visitors
   if (!request.cookies.get('NEXT_LOCALE')) {
-    response.cookies.set('NEXT_LOCALE', 'es', {
+    responseWithSession.cookies.set('NEXT_LOCALE', 'es', {
       path: '/',
       maxAge: 60 * 60 * 24 * 365 // 1 year
     });
   }
 
-  return response as NextResponse;
+  return responseWithSession as NextResponse;
 }
 
 export const config = {

@@ -1,24 +1,21 @@
 import nodemailer from 'nodemailer';
 import { Apartment, Booking } from '@/lib/types';
 
-// Email configuration - using your preferred Gmail setup
-const emailConfig = {
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_SENDER,
-    pass: process.env.GOOGLE_APP_PASSWORD,
-  },
-};
-
-// Create transporter
+// Create transporter using environment variables at call time
 const createTransporter = () => {
-  if (!emailConfig.auth.user || !emailConfig.auth.pass) {
+  const user = process.env.EMAIL_SENDER;
+  const pass = process.env.GOOGLE_APP_PASSWORD;
+
+  if (!user || !pass) {
     throw new Error('Email credentials not configured. Please set EMAIL_SENDER and GOOGLE_APP_PASSWORD environment variables.');
   }
-  
-  return nodemailer.createTransport(emailConfig);
+
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: { user, pass },
+  });
 };
 
 // Email templates
@@ -211,9 +208,10 @@ export const createGuestEmailTemplate = (booking: Booking, apartment: Apartment)
 export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   try {
     const transporter = createTransporter();
+    const fromUser = process.env.EMAIL_SENDER || '';
     
     const mailOptions = {
-      from: `"Mendoza Apartments" <${emailConfig.auth.user}>`,
+      from: `"Mendoza Apartments" <${fromUser}>`,
       to,
       subject,
       html,

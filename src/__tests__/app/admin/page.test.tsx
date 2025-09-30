@@ -125,7 +125,11 @@ jest.mock('@/components/ui/badge', () => ({
 }))
 
 jest.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div data-testid="dialog" data-open={open}>{children}</div> : null,
+  Dialog: ({ children, open }: any) => (
+    <div data-testid="dialog" data-open={open}>
+      {children}
+    </div>
+  ),
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
   DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
@@ -138,7 +142,8 @@ jest.mock('lucide-react', () => ({
   Plus: () => <div data-testid="plus-icon" />,
   Home: () => <div data-testid="home-icon" />,
   Calendar: () => <div data-testid="calendar-icon" />,
-  Users: () => <div data-testid="users-icon" />
+  Users: () => <div data-testid="users-icon" />,
+  BookOpen: () => <div data-testid="book-open-icon" />
 }))
 
 // Mock apartments service
@@ -192,7 +197,7 @@ const mockApartments: Apartment[] = [
   }
 ]
 
-describe.skip('AdminDashboard', () => {
+describe('AdminDashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     // Mock console.error to avoid noise in tests
@@ -236,7 +241,7 @@ describe.skip('AdminDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText('Apartments Management')).toBeInTheDocument()
       expect(screen.getByText('Create, edit and manage your apartment listings')).toBeInTheDocument()
-      expect(screen.getByText('Add New Apartment')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Add New Apartment' })).toBeInTheDocument()
     })
   })
 
@@ -276,11 +281,11 @@ describe.skip('AdminDashboard', () => {
     render(<AdminDashboard />)
 
     await waitFor(() => {
-      expect(screen.getByText('Add New Apartment')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Add New Apartment' })).toBeInTheDocument()
     })
 
     await act(async () => {
-      await user.click(screen.getByText('Add New Apartment'))
+      await user.click(screen.getByRole('button', { name: 'Add New Apartment' }))
     })
 
     expect(screen.getByTestId('dialog')).toBeInTheDocument()
@@ -296,11 +301,11 @@ describe.skip('AdminDashboard', () => {
 
     // Open dialog
     await waitFor(() => {
-      expect(screen.getByText('Add New Apartment')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Add New Apartment' })).toBeInTheDocument()
     })
 
     await act(async () => {
-      await user.click(screen.getByText('Add New Apartment'))
+      await user.click(screen.getByRole('button', { name: 'Add New Apartment' }))
     })
 
     // Mock second call after creation
@@ -316,7 +321,7 @@ describe.skip('AdminDashboard', () => {
     })
 
     // Dialog should be closed (not visible)
-    expect(screen.queryByTestId('dialog')).not.toBeInTheDocument()
+    expect(screen.getByTestId('dialog')).toHaveAttribute('data-open', 'false')
   })
 
   it('handles apartment creation cancellation', async () => {
@@ -327,11 +332,11 @@ describe.skip('AdminDashboard', () => {
 
     // Open dialog
     await waitFor(() => {
-      expect(screen.getByText('Add New Apartment')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Add New Apartment' })).toBeInTheDocument()
     })
 
     await act(async () => {
-      await user.click(screen.getByText('Add New Apartment'))
+      await user.click(screen.getByRole('button', { name: 'Add New Apartment' }))
     })
 
     // Cancel form
@@ -340,7 +345,7 @@ describe.skip('AdminDashboard', () => {
     })
 
     // Dialog should be closed
-    expect(screen.queryByTestId('dialog')).not.toBeInTheDocument()
+    expect(screen.getByTestId('dialog')).toHaveAttribute('data-open', 'false')
   })
 
   it('handles apartment update', async () => {
@@ -430,9 +435,143 @@ describe.skip('AdminDashboard', () => {
     render(<AdminDashboard />)
 
     await waitFor(() => {
-      expect(screen.getByTestId('home-icon')).toBeInTheDocument()
+      expect(screen.getAllByTestId('home-icon')).toHaveLength(2) // One in stats card, one in tabs trigger
       expect(screen.getByTestId('users-icon')).toBeInTheDocument()
       expect(screen.getByTestId('calendar-icon')).toBeInTheDocument()
+    })
+  })
+
+  it('renders tabs navigation with correct default value', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tabs')).toBeInTheDocument()
+      expect(screen.getByTestId('tabs')).toHaveAttribute('data-default-value', 'apartments')
+      expect(screen.getByTestId('tabs-list')).toBeInTheDocument()
+      expect(screen.getByTestId('tabs-trigger-apartments')).toBeInTheDocument()
+      expect(screen.getByTestId('tabs-trigger-reservations')).toBeInTheDocument()
+    })
+  })
+
+  it('renders apartments tab content', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tabs-content-apartments')).toBeInTheDocument()
+      expect(screen.getByText('Apartments Management')).toBeInTheDocument()
+      expect(screen.getByText('Create, edit and manage your apartment listings')).toBeInTheDocument()
+    })
+  })
+
+  it('renders reservations tab content', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tabs-content-reservations')).toBeInTheDocument()
+      expect(screen.getByText('Reservations Management')).toBeInTheDocument()
+      expect(screen.getByText('Manage all booking requests and reservations')).toBeInTheDocument()
+      expect(screen.getByTestId('reservations-list')).toBeInTheDocument()
+    })
+  })
+
+  it('renders tabs with correct trigger content', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      const apartmentsTrigger = screen.getByTestId('tabs-trigger-apartments')
+      const reservationsTrigger = screen.getByTestId('tabs-trigger-reservations')
+
+      expect(apartmentsTrigger).toHaveTextContent('Apartments')
+      expect(reservationsTrigger).toHaveTextContent('Reservations')
+    })
+  })
+
+  it('renders dialog content when create dialog is opened', async () => {
+    const user = userEvent.setup()
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Add New Apartment' })).toBeInTheDocument()
+    })
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Add New Apartment' }))
+    })
+
+    expect(screen.getByTestId('dialog-content')).toBeInTheDocument()
+    expect(screen.getByTestId('dialog-header')).toBeInTheDocument()
+    expect(screen.getByTestId('apartment-form')).toBeInTheDocument()
+  })
+
+  it('renders badge for active listings', async () => {
+    mockGetAllApartments.mockResolvedValue(mockApartments)
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      const badge = screen.getByTestId('badge')
+      expect(badge).toHaveAttribute('data-variant', 'outline')
+      expect(badge).toHaveTextContent('Active')
+    })
+  })
+
+  it('renders button with correct variant and size in quick actions', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button')
+      const viewSiteButton = buttons.find(button =>
+        button.getAttribute('data-variant') === 'outline' &&
+        button.getAttribute('data-size') === 'sm'
+      )
+      expect(viewSiteButton).toBeInTheDocument()
+    })
+  })
+
+  it('sets loading state correctly during apartment fetching', async () => {
+    let resolvePromise: (value: Apartment[]) => void
+    const loadingPromise = new Promise<Apartment[]>((resolve) => {
+      resolvePromise = resolve
+    })
+
+    mockGetAllApartments.mockReturnValue(loadingPromise)
+
+    render(<AdminDashboard />)
+
+    // Should show loading initially
+    expect(screen.getByTestId('loading')).toBeInTheDocument()
+
+    // Resolve the promise
+    await act(async () => {
+      resolvePromise!(mockApartments)
+      await loadingPromise
+    })
+
+    // Loading should be gone
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
+    })
+  })
+
+  it('handles dialog trigger correctly', async () => {
+    mockGetAllApartments.mockResolvedValue([])
+
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('dialog-trigger')).toBeInTheDocument()
     })
   })
 })
