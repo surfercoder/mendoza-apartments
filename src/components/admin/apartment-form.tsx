@@ -107,8 +107,8 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
       max_guests: apartment?.max_guests || 1,
       address: apartment?.address || "",
       contact_email: apartment?.contact_email || "florcaliri@gmail.com",
-      contact_phone: apartment?.contact_phone || "+5492616540387",
-      whatsapp_number: apartment?.whatsapp_number || "+5492616540387",
+      contact_phone: apartment?.contact_phone || "+5492616530387",
+      whatsapp_number: apartment?.whatsapp_number || "+5492616530387",
       is_active: apartment?.is_active ?? true,
       images: apartment?.images || [],
       characteristics: {
@@ -327,7 +327,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   <FormItem>
                     <FormLabel>{t('contactPhone')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="+5492616540387" {...field} />
+                      <Input placeholder="+5492616530387" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -341,7 +341,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                   <FormItem>
                     <FormLabel>{t('whatsappNumber')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="+5492616540387" {...field} />
+                      <Input placeholder="+5492616530387" {...field} />
                     </FormControl>
                     <FormDescription>
                       {t('whatsappHint')}
@@ -460,7 +460,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
 
               {imageUrls.length > 0 && (
                 <div className="space-y-2">
-                  <Label>{t('imageUrls')}</Label>
+                  <div className="text-sm font-medium">{t('imageUrls')}</div>
                   <div className="grid grid-cols-3 gap-2">
                     {imageUrls.map((url, index) => (
                       <div key={index} className="relative p-2 border rounded">

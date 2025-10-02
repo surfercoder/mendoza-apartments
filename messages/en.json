@@ -89,7 +89,7 @@
       "allSubtitle": "Browse our collection of apartments or use the search above to find availability for specific dates."
     },
     "footer": {
-      "copyright": "2024 Mendoza Apartments. Managed by Florencia.",
+      "copyright": "© 2024 Mendoza Apartments",
       "contact": "For inquiries, contact us via email or WhatsApp through any apartment listing."
     }
   },
@@ -123,7 +123,7 @@
     "selectDatesAlert": "Please select check-in and check-out dates",
     "bookingFailed": "Failed to submit booking. Please try again.",
     "emailPlaceholder": "your.email@example.com",
-    "phonePlaceholder": "+5492616540387"
+    "phonePlaceholder": "+5492616530387"
   },
   "validation": {
     "nameMinLength": "Name must be at least 2 characters",
@@ -141,7 +141,7 @@
     "title": "Book Your Stay",
     "description": "Complete your booking request for {title}",
     "submittedTitle": "Booking Request Submitted!",
-    "submittedDesc": "Thank you! Florencia will contact you soon to confirm your booking.",
+    "submittedDesc": "Thank you! Admin will contact you soon to confirm your booking.",
     "submittedEmail": "You will receive a confirmation email shortly.",
     "summary": {
       "title": "Booking Summary",
@@ -164,7 +164,7 @@
     },
     "note": {
       "title": "Note:",
-      "content": "This is a booking request. Florencia will contact you within 24 hours to confirm availability and provide payment instructions."
+      "content": "This is a booking request. Admin will contact you within 24 hours to confirm availability and provide payment instructions."
     }
   }
 }

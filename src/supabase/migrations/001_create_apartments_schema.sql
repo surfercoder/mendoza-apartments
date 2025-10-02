@@ -93,8 +93,8 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   2,
   'San Martín 1234, Mendoza Capital',
   'florcaliri@gmail.com',
-  '+5492616540387',
-  '+5492616540387'
+  '+5492616530387',
+  '+5492616530387'
 ),
 (
   'Luxury Penthouse with Pool',
@@ -104,8 +104,8 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   6,
   'Av. Las Heras 567, Mendoza Capital',
   'florcaliri@gmail.com',
-  '+5492616540387',
-  '+5492616540387'
+  '+5492616530387',
+  '+5492616530387'
 ),
 (
   'Family-Friendly House',
@@ -115,6 +115,6 @@ INSERT INTO apartments (title, description, characteristics, price_per_night, ma
   8,
   'Barrio Bombal, Mendoza',
   'florcaliri@gmail.com',
-  '+5492616540387',
-  '+5492616540387'
+  '+5492616530387',
+  '+5492616530387'
 );

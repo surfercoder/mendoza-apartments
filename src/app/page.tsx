@@ -176,7 +176,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center text-muted-foreground">
             <p className="mb-2">
-              {t('footer.copyright')}
+              {new Date().getFullYear()} {t('footer.copyright')}
             </p>
             <p className="text-sm">
               {t('footer.contact')}

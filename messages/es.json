@@ -89,7 +89,7 @@
       "allSubtitle": "Recorré nuestra colección de departamentos o usá la búsqueda para ver disponibilidad por fechas."
     },
     "footer": {
-      "copyright": "2024 Mendoza Apartments. Administrado por Florencia.",
+      "copyright": "© 2024 Mendoza Apartments",
       "contact": "Consultas por email o WhatsApp desde cualquier publicación."
     }
   },
@@ -123,7 +123,7 @@
     "selectDatesAlert": "Por favor seleccioná fechas de entrada y salida",
     "bookingFailed": "Error al enviar la reserva. Por favor intentá de nuevo.",
     "emailPlaceholder": "tu.email@ejemplo.com",
-    "phonePlaceholder": "+5492616540387"
+    "phonePlaceholder": "+5492616530387"
   },
   "validation": {
     "nameMinLength": "El nombre debe tener al menos 2 caracteres",
@@ -141,7 +141,7 @@
     "title": "Reservá tu estadía",
     "description": "Completá tu solicitud de reserva para {title}",
     "submittedTitle": "¡Solicitud de reserva enviada!",
-    "submittedDesc": "¡Gracias! Florencia se pondrá en contacto pronto para confirmar tu reserva.",
+    "submittedDesc": "¡Gracias! El administrador se pondrá en contacto pronto para confirmar tu reserva.",
     "submittedEmail": "Vas a recibir un email de confirmación en breve.",
     "summary": {
       "title": "Resumen de la reserva",
@@ -164,7 +164,7 @@
     },
     "note": {
       "title": "Nota:",
-      "content": "Esto es una solicitud de reserva. Florencia te va a contactar dentro de 24 horas para confirmar disponibilidad y medios de pago."
+      "content": "Esto es una solicitud de reserva. El administrador te va a contactar dentro de 24 horas para confirmar disponibilidad y medios de pago."
     }
   }
 }

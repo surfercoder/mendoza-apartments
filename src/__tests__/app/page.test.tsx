@@ -22,7 +22,7 @@ jest.mock('next-intl', () => ({
       'results.adjust': 'Try adjusting your search criteria',
       'results.viewAll': 'View All Apartments',
       'footer.copyright': '© 2024 Mendoza Apartments',
-      'footer.contact': 'Contact us for more information'
+      'footer.contact': 'For inquiries, contact us via email or WhatsApp through any apartment listing.'
     }
     return translations[key] || key
   })
@@ -365,8 +365,10 @@ describe('HomePage', () => {
     mockGetAvailableApartments.mockResolvedValue([])
     render(<HomePage />)
 
-    expect(screen.getByText('© 2024 Mendoza Apartments')).toBeInTheDocument()
-    expect(screen.getByText('Contact us for more information')).toBeInTheDocument()
+    expect(screen.getByText((content, element) => {
+      return element?.textContent === '2025 © 2024 Mendoza Apartments'
+    })).toBeInTheDocument()
+    expect(screen.getByText('For inquiries, contact us via email or WhatsApp through any apartment listing.')).toBeInTheDocument()
   })
 
   it('handles initial load error', async () => {

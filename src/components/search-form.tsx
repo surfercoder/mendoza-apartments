@@ -36,7 +36,7 @@ export function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="md:col-span-2">
-            <Label htmlFor="dates" className="text-sm font-medium mb-2 block">
+            <Label htmlFor="date" className="text-sm font-medium mb-2 block">
               {t('checkInOut')}
             </Label>
             <DateRangePicker
@@ -51,7 +51,7 @@ export function SearchForm({ onSearch, isLoading = false }: SearchFormProps) {
               {t('guests')}
             </Label>
             <Select value={guests} onValueChange={setGuests}>
-              <SelectTrigger>
+              <SelectTrigger id="guests">
                 <Users className="h-4 w-4 mr-2" />
                 <SelectValue placeholder={t('selectGuests')} />
               </SelectTrigger>
