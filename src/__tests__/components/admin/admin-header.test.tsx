@@ -22,7 +22,8 @@ jest.mock('next-intl', () => ({
       }
     }
     return translations[namespace]?.[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock LanguageSwitcher
@@ -58,9 +59,9 @@ describe('AdminHeader', () => {
     const { container } = render(<AdminHeader {...defaultProps} />)
 
     // Query form by tag name since HTML forms don't have implicit form role
-    const form = container.querySelector('form[action="/auth/signout"]')
+    const form = container.querySelector('form[action="/en/auth/signout"]')
     expect(form).toBeInTheDocument()
-    expect(form).toHaveAttribute('action', '/auth/signout')
+    expect(form).toHaveAttribute('action', '/en/auth/signout')
     expect(form).toHaveAttribute('method', 'post')
 
     const signOutButton = screen.getByRole('button', { name: 'Sign Out' })
@@ -179,9 +180,9 @@ describe('AdminHeader', () => {
   it('form targets correct endpoint', () => {
     const { container } = render(<AdminHeader {...defaultProps} />)
 
-    const form = container.querySelector('form[action="/auth/signout"]')
+    const form = container.querySelector('form[action="/en/auth/signout"]')
     expect(form).toBeInTheDocument()
-    expect(form?.getAttribute('action')).toBe('/auth/signout')
+    expect(form?.getAttribute('action')).toBe('/en/auth/signout')
     expect(form?.getAttribute('method')).toBe('post')
   })
 
@@ -199,7 +200,7 @@ describe('AdminHeader', () => {
   it('preserves form functionality', () => {
     const { container } = render(<AdminHeader {...defaultProps} />)
 
-    const form = container.querySelector('form[action="/auth/signout"]')
+    const form = container.querySelector('form[action="/en/auth/signout"]')
     const button = screen.getByRole('button', { name: 'Sign Out' })
 
     expect(form).toContainElement(button)

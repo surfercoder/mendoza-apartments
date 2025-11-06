@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import HomePage from '@/app/page'
+import HomePage from '@/app/[locale]/page'
 import { getAvailableApartments } from '@/lib/supabase/apartments'
 import { Apartment, SearchFilters } from '@/lib/types'
 
@@ -25,7 +25,8 @@ jest.mock('next-intl', () => ({
       'footer.contact': 'For inquiries, contact us via email or WhatsApp through any apartment listing.'
     }
     return translations[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/link
@@ -169,7 +170,7 @@ describe('HomePage', () => {
 
     expect(screen.getByTestId('heart-icon')).toBeInTheDocument()
     expect(screen.getByTestId('mappin-icon')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Admin Dashboard/i })).toHaveAttribute('href', '/admin')
+    expect(screen.getByRole('link', { name: /Admin Dashboard/i })).toHaveAttribute('href', '/en/admin')
     expect(screen.getByTestId('language-switcher')).toBeInTheDocument()
     expect(screen.getByTestId('theme-switcher')).toBeInTheDocument()
   })

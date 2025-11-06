@@ -25,8 +25,10 @@ jest.mock('next-intl', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
+    push: jest.fn(),
     refresh: jest.fn()
-  }))
+  })),
+  usePathname: jest.fn(() => '/en')
 }))
 
 // Mock UI components
@@ -76,6 +78,7 @@ Object.defineProperty(document, 'cookie', {
 })
 
 describe('LanguageSwitcher', () => {
+  const mockPush = jest.fn()
   const mockRefresh = jest.fn()
   const mockStartTransition = jest.fn()
 
@@ -84,7 +87,7 @@ describe('LanguageSwitcher', () => {
 
     mockUseRouter.mockReturnValue({
       refresh: mockRefresh,
-      push: jest.fn(),
+      push: mockPush,
       replace: jest.fn(),
       prefetch: jest.fn(),
       back: jest.fn(),
@@ -93,9 +96,6 @@ describe('LanguageSwitcher', () => {
 
     mockUseTransition.mockReturnValue([false, mockStartTransition])
     mockUseLocale.mockReturnValue('en')
-
-    // Reset document.cookie
-    document.cookie = ''
   })
 
   it('renders language switcher with English locale', () => {
@@ -183,8 +183,7 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(document.cookie).toContain('NEXT_LOCALE=en')
-    expect(mockRefresh).toHaveBeenCalled()
+    expect(mockPush).toHaveBeenCalledWith('/en')
   })
 
   it('switches to Spanish locale', async () => {
@@ -210,11 +209,10 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(document.cookie).toContain('NEXT_LOCALE=es')
-    expect(mockRefresh).toHaveBeenCalled()
+    expect(mockPush).toHaveBeenCalledWith('/es')
   })
 
-  it('sets cookie with correct attributes', async () => {
+  it('navigates to correct URL path', async () => {
     const user = userEvent.setup()
 
     mockStartTransition.mockImplementation((callback) => {
@@ -223,7 +221,7 @@ describe('LanguageSwitcher', () => {
 
     render(<LanguageSwitcher />)
 
-    const englishMenuItem = screen.getByText('English').closest('[data-testid=\"dropdown-menu-item\"]')
+    const englishMenuItem = screen.getByText('English').closest('[data-testid="dropdown-menu-item"]')
 
     await act(async () => {
       await user.click(englishMenuItem!)
@@ -233,9 +231,8 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    // Check cookie format
-    const expectedCookie = 'NEXT_LOCALE=en; path=/; max-age=31536000' // 365 * 24 * 60 * 60
-    expect(document.cookie).toBe(expectedCookie)
+    // Check that router.push was called with the correct path
+    expect(mockPush).toHaveBeenCalledWith('/en')
   })
 
   it('aligns dropdown menu content to end', () => {
@@ -251,7 +248,7 @@ describe('LanguageSwitcher', () => {
     expect(mockUseTransition).toHaveBeenCalled()
   })
 
-  it('calls router.refresh when locale changes', async () => {
+  it('calls router.push when locale changes', async () => {
     const user = userEvent.setup()
 
     mockStartTransition.mockImplementation((callback) => {
@@ -260,13 +257,13 @@ describe('LanguageSwitcher', () => {
 
     render(<LanguageSwitcher />)
 
-    const englishMenuItem = screen.getByText('English').closest('[data-testid=\"dropdown-menu-item\"]')
+    const englishMenuItem = screen.getByText('English').closest('[data-testid="dropdown-menu-item"]')
 
     await act(async () => {
       await user.click(englishMenuItem!)
     })
 
-    expect(mockRefresh).toHaveBeenCalledTimes(1)
+    expect(mockPush).toHaveBeenCalledTimes(1)
   })
 
   it('handles same locale selection', async () => {
@@ -291,8 +288,7 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(document.cookie).toContain('NEXT_LOCALE=en')
-    expect(mockRefresh).toHaveBeenCalled()
+    expect(mockPush).toHaveBeenCalledWith('/en')
   })
 
   it('renders correct structure', () => {

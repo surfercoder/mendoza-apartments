@@ -2,7 +2,7 @@
 
 import {useTransition} from "react";
 import {useLocale, useTranslations} from "next-intl";
-import {useRouter} from "next/navigation";
+import {useRouter, usePathname} from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -10,13 +10,27 @@ export function LanguageSwitcher() {
   const locale = useLocale();
   const t = useTranslations('language');
   const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const setLocale = (next: string) => {
+  const setLocale = (nextLocale: string) => {
     startTransition(() => {
-      // Persist chosen locale; next-intl reads NEXT_LOCALE
-      document.cookie = `NEXT_LOCALE=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
-      router.refresh();
+      // Replace the locale in the pathname
+      const segments = pathname.split('/').filter(Boolean); // Remove empty strings
+      
+      // Check if first segment is a locale
+      const firstSegmentIsLocale = segments.length > 0 && ['en', 'es'].includes(segments[0]);
+      
+      if (firstSegmentIsLocale) {
+        // Replace the locale
+        segments[0] = nextLocale;
+      } else {
+        // Add locale at the beginning
+        segments.unshift(nextLocale);
+      }
+      
+      const newPath = '/' + segments.join('/');
+      router.push(newPath);
     });
   };
 

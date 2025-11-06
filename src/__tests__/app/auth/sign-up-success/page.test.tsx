@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import SignUpSuccessPage from '@/app/auth/sign-up-success/page'
+import SignUpSuccessPage from '@/app/[locale]/auth/sign-up-success/page'
 
 // Mock next-intl
 jest.mock('next-intl', () => ({

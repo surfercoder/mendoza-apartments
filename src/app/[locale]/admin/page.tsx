@@ -19,13 +19,14 @@ import { getAllApartments } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
 import { Plus, Home, Calendar, Users, BookOpen } from "lucide-react"
 import Link from "next/link"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AdminDashboard() {
   const t = useTranslations('admin')
   const tc = useTranslations('common')
   const tTabs = useTranslations('tabs')
+  const locale = useLocale()
   const [apartments, setApartments] = React.useState<Apartment[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
@@ -116,7 +117,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Link href="/" className="block">
+              <Link href={`/${locale}`} className="block">
                 <Button variant="outline" size="sm" className="w-full">
                   {tc('viewPublicSite')}
                 </Button>

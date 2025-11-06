@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import UpdatePasswordPage from '@/app/auth/update-password/page'
+import UpdatePasswordPage from '@/app/[locale]/auth/update-password/page'
 
 // Mock UpdatePasswordForm component
 jest.mock('@/components/update-password-form', () => ({

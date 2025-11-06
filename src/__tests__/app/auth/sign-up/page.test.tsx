@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import SignUpPage from '@/app/auth/sign-up/page'
+import SignUpPage from '@/app/[locale]/auth/sign-up/page'
 
 // Mock SignUpForm component
 jest.mock('@/components/sign-up-form', () => ({

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import ErrorPage from '@/app/auth/error/page'
+import ErrorPage from '@/app/[locale]/auth/error/page'
 
 // Mock next-intl/server
 jest.mock('next-intl/server', () => ({

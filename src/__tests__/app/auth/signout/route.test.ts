@@ -1,4 +1,4 @@
-import { POST } from '@/app/auth/signout/route'
+import { POST } from '@/app/[locale]/auth/signout/route'
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,6 +15,8 @@ const mockCreateClient = createClient as jest.MockedFunction<typeof createClient
 const mockNextResponse = NextResponse as jest.Mocked<typeof NextResponse>
 
 describe('Auth Signout Route', () => {
+  const mockParams = { params: Promise.resolve({ locale: 'en' }) }
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -34,11 +36,11 @@ describe('Auth Signout Route', () => {
       url: 'http://localhost:3000/auth/signout'
     } as NextRequest
 
-    const result = await POST(mockRequest)
+    const result = await POST(mockRequest, mockParams)
 
     expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled()
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/', 'http://localhost:3000/auth/signout')
+      new URL('/en', 'http://localhost:3000/auth/signout')
     )
     expect(result).toBe(mockRedirectResponse)
   })
@@ -50,7 +52,7 @@ describe('Auth Signout Route', () => {
       url: 'http://localhost:3000/auth/signout'
     } as NextRequest
 
-    await expect(POST(mockRequest)).rejects.toThrow('Client creation failed')
+    await expect(POST(mockRequest, mockParams)).rejects.toThrow('Client creation failed')
 
     expect(mockNextResponse.redirect).not.toHaveBeenCalled()
   })
@@ -68,7 +70,7 @@ describe('Auth Signout Route', () => {
     } as NextRequest
 
     // The error should propagate
-    await expect(POST(mockRequest)).rejects.toThrow('Sign out failed')
+    await expect(POST(mockRequest, mockParams)).rejects.toThrow('Sign out failed')
 
     expect(mockSupabaseClient.auth.signOut).toHaveBeenCalled()
     expect(mockNextResponse.redirect).not.toHaveBeenCalled()
@@ -89,10 +91,10 @@ describe('Auth Signout Route', () => {
       url: 'https://example.com/auth/signout'
     } as NextRequest
 
-    await POST(mockRequest)
+    await POST(mockRequest, mockParams)
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/', 'https://example.com/auth/signout')
+      new URL('/en', 'https://example.com/auth/signout')
     )
   })
 
@@ -111,10 +113,10 @@ describe('Auth Signout Route', () => {
       url: 'http://localhost:3001/auth/signout'
     } as NextRequest
 
-    await POST(mockRequest)
+    await POST(mockRequest, mockParams)
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/', 'http://localhost:3001/auth/signout')
+      new URL('/en', 'http://localhost:3001/auth/signout')
     )
   })
 
@@ -133,7 +135,7 @@ describe('Auth Signout Route', () => {
       url: 'http://localhost:3000/auth/signout'
     } as NextRequest
 
-    await POST(mockRequest)
+    await POST(mockRequest, mockParams)
 
     expect(mockSupabaseClient.auth.signOut).toHaveBeenCalledTimes(1)
     expect(mockSupabaseClient.auth.signOut).toHaveBeenCalledWith()

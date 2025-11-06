@@ -119,35 +119,37 @@ export function ApartmentList({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {apartments.map((apartment) => (
           <Card key={apartment.id} className="overflow-hidden">
-            <div className="relative h-48">
-              {apartment.images && apartment.images.length > 0 ? (
-                <Image
-                  src={apartment.images[0]}
-                  alt={apartment.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="h-full w-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500">{tAdmin('list.noImage')}</span>
+            <CardHeader className="p-4 pb-0">
+              <div className="relative h-48 w-full overflow-hidden rounded-lg">
+                {apartment.images && apartment.images.length > 0 ? (
+                  <Image
+                    src={apartment.images[0]}
+                    alt={apartment.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">{tAdmin('list.noImage')}</span>
+                  </div>
+                )}
+                <div className="absolute top-2 right-2">
+                  <Badge variant={apartment.is_active ? "default" : "secondary"}>
+                    {apartment.is_active ? (
+                      <>
+                        <Eye className="h-3 w-3 mr-1" />
+                        {tCommon('active')}
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        {tCommon('inactive')}
+                      </>
+                    )}
+                  </Badge>
                 </div>
-              )}
-              <div className="absolute top-2 right-2">
-                <Badge variant={apartment.is_active ? "default" : "secondary"}>
-                  {apartment.is_active ? (
-                    <>
-                      <Eye className="h-3 w-3 mr-1" />
-                      {tCommon('active')}
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="h-3 w-3 mr-1" />
-                      {tCommon('inactive')}
-                    </>
-                  )}
-                </Badge>
               </div>
-            </div>
+            </CardHeader>
 
             <CardHeader className="pb-3">
               <CardTitle className="text-lg line-clamp-1">{apartment.title}</CardTitle>

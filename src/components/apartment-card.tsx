@@ -49,9 +49,9 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <CardHeader className="p-0">
+      <CardHeader className="p-4 pb-0">
         <div 
-          className="relative h-48 w-full cursor-pointer group"
+          className="relative h-48 w-full cursor-pointer group overflow-hidden rounded-lg"
           onClick={() => apartment.images && apartment.images.length > 0 && setIsGalleryModalOpen(true)}
         >
           {apartment.images && apartment.images.length > 0 ? (

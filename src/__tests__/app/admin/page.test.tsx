@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import AdminDashboard from '@/app/admin/page'
+import AdminDashboard from '@/app/[locale]/admin/page'
 import { getAllApartments } from '@/lib/supabase/apartments'
 import { Apartment } from '@/lib/types'
 
@@ -40,7 +40,8 @@ jest.mock('next-intl', () => ({
       }
     }
     return translations[namespace]?.[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/link
@@ -430,7 +431,7 @@ describe('AdminDashboard', () => {
 
     await waitFor(() => {
       const publicSiteLink = screen.getByRole('link')
-      expect(publicSiteLink).toHaveAttribute('href', '/')
+      expect(publicSiteLink).toHaveAttribute('href', '/en')
       expect(screen.getByText('View Public Site')).toBeInTheDocument()
     })
   })

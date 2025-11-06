@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import ForgotPasswordPage from '@/app/auth/forgot-password/page'
+import ForgotPasswordPage from '@/app/[locale]/auth/forgot-password/page'
 
 // Mock ForgotPasswordForm component
 jest.mock('@/components/forgot-password-form', () => ({

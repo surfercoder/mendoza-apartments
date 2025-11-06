@@ -1,11 +1,12 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function AdminHeader({ userEmail }: { userEmail: string }) {
   const tDash = useTranslations("admin.dashboard");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
 
   return (
     <div className="flex items-center justify-between">
@@ -15,7 +16,7 @@ export function AdminHeader({ userEmail }: { userEmail: string }) {
           {tCommon("welcome")}: {userEmail}
         </span>
         <LanguageSwitcher />
-        <form action="/auth/signout" method="post">
+        <form action={`/${locale}/auth/signout`} method="post">
           <button
             type="submit"
             className="text-sm text-muted-foreground hover:text-foreground"

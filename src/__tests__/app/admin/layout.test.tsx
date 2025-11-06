@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import AdminLayout from '@/app/admin/layout'
+import AdminLayout from '@/app/[locale]/admin/layout'
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
@@ -45,7 +45,8 @@ describe('AdminLayout', () => {
 
     const { getByTestId } = render(
       await AdminLayout({
-        children: <div data-testid="admin-children">Admin Content</div>
+        children: <div data-testid="admin-children">Admin Content</div>,
+        params: Promise.resolve({ locale: 'en' })
       })
     )
 
@@ -70,10 +71,11 @@ describe('AdminLayout', () => {
     })
 
     await expect(AdminLayout({
-      children: <div>Admin Content</div>
+      children: <div>Admin Content</div>,
+      params: Promise.resolve({ locale: 'en' })
     })).rejects.toThrow('REDIRECT')
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/login')
   })
 
   it('handles user with no email', async () => {
@@ -88,7 +90,8 @@ describe('AdminLayout', () => {
 
     const { getByTestId } = render(
       await AdminLayout({
-        children: <div data-testid="admin-children">Admin Content</div>
+        children: <div data-testid="admin-children">Admin Content</div>,
+        params: Promise.resolve({ locale: 'en' })
       })
     )
 
@@ -111,10 +114,11 @@ describe('AdminLayout', () => {
     })
 
     await expect(AdminLayout({
-      children: <div>Admin Content</div>
+      children: <div>Admin Content</div>,
+      params: Promise.resolve({ locale: 'en' })
     })).rejects.toThrow('REDIRECT')
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/login')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/login')
   })
 
   it('renders correct layout structure', async () => {
@@ -129,7 +133,8 @@ describe('AdminLayout', () => {
 
     const { container } = render(
       await AdminLayout({
-        children: <div>Admin Content</div>
+        children: <div>Admin Content</div>,
+        params: Promise.resolve({ locale: 'en' })
       })
     )
 

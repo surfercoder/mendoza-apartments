@@ -1,4 +1,4 @@
-import { GET } from '@/app/auth/confirm/route'
+import { GET } from '@/app/[locale]/auth/confirm/route'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
@@ -23,6 +23,8 @@ describe('Auth Confirm Route', () => {
     return { url: url.toString() } as NextRequest
   }
 
+  const mockParams = { params: Promise.resolve({ locale: 'en' }) }
+
   it('successfully verifies OTP and redirects to next URL', async () => {
     const mockSupabaseClient = {
       auth: {
@@ -37,7 +39,7 @@ describe('Auth Confirm Route', () => {
       next: '/dashboard'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
     expect(mockSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
       type: 'signup',
@@ -59,9 +61,9 @@ describe('Auth Confirm Route', () => {
       type: 'signup'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
-    expect(mockRedirect).toHaveBeenCalledWith('/')
+    expect(mockRedirect).toHaveBeenCalledWith('/en')
   })
 
   it('redirects to error page when OTP verification fails', async () => {
@@ -80,13 +82,13 @@ describe('Auth Confirm Route', () => {
       next: '/dashboard'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
     expect(mockSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
       type: 'signup',
       token_hash: 'expired-token-hash'
     })
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/error?error=Token has expired')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/error?error=Token has expired')
   })
 
   it('redirects to error page when token_hash is missing', async () => {
@@ -95,9 +97,9 @@ describe('Auth Confirm Route', () => {
       next: '/dashboard'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/error?error=No token hash or type')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/error?error=No token hash or type')
     expect(mockCreateClient).not.toHaveBeenCalled()
   })
 
@@ -107,9 +109,9 @@ describe('Auth Confirm Route', () => {
       next: '/dashboard'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/error?error=No token hash or type')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/error?error=No token hash or type')
     expect(mockCreateClient).not.toHaveBeenCalled()
   })
 
@@ -118,9 +120,9 @@ describe('Auth Confirm Route', () => {
       next: '/dashboard'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/error?error=No token hash or type')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/error?error=No token hash or type')
     expect(mockCreateClient).not.toHaveBeenCalled()
   })
 
@@ -143,7 +145,7 @@ describe('Auth Confirm Route', () => {
         next: '/dashboard'
       })
 
-      await GET(request)
+      await GET(request, mockParams)
 
       expect(mockSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
         type,
@@ -163,7 +165,7 @@ describe('Auth Confirm Route', () => {
     })
 
     // The error will be thrown and should be handled by the framework
-    await expect(GET(request)).rejects.toThrow('Client creation failed')
+    await expect(GET(request, mockParams)).rejects.toThrow('Client creation failed')
 
     expect(mockRedirect).not.toHaveBeenCalled()
   })
@@ -183,7 +185,7 @@ describe('Auth Confirm Route', () => {
     })
 
     // The error will be thrown and should be handled by the framework
-    await expect(GET(request)).rejects.toThrow('Network error')
+    await expect(GET(request, mockParams)).rejects.toThrow('Network error')
 
     expect(mockRedirect).not.toHaveBeenCalled()
   })
@@ -203,8 +205,8 @@ describe('Auth Confirm Route', () => {
       type: 'signup'
     })
 
-    await GET(request)
+    await GET(request, mockParams)
 
-    expect(mockRedirect).toHaveBeenCalledWith('/auth/error?error=Token invalid & expired')
+    expect(mockRedirect).toHaveBeenCalledWith('/en/auth/error?error=Token invalid & expired')
   })
 })

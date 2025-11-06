@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import Link from "next/link"
 import { MapPin, Heart } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default function HomePage() {
   const t = useTranslations('home')
+  const locale = useLocale()
   const [apartments, setApartments] = React.useState<Apartment[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
   const [hasSearched, setHasSearched] = React.useState(false)
@@ -73,7 +74,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/admin">
+              <Link href={`/${locale}/admin`}>
                 <Button variant="outline" size="sm">
                   {t('adminDashboard')}
                 </Button>

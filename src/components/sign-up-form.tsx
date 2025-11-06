@@ -15,13 +15,14 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const t = useTranslations('auth.signUp');
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -46,11 +47,11 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin`,
+          emailRedirectTo: `${window.location.origin}/${locale}/admin`,
         },
       });
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+      router.push(`/${locale}/auth/sign-up-success`);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : t('errorOccurred'));
     } finally {

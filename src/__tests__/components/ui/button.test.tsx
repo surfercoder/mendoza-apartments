@@ -2,6 +2,13 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Button, buttonVariants } from '@/components/ui/button'
 
+// Mock next/link
+jest.mock('next/link', () => {
+  const MockLink = ({ children, href }: any) => <a href={href}>{children}</a>
+  MockLink.displayName = 'Link'
+  return MockLink
+})
+
 // Mock @radix-ui/react-slot
 jest.mock('@radix-ui/react-slot', () => ({
   Slot: ({ children, ...props }: any) => <div data-testid="slot" {...props}>{children}</div>
@@ -30,7 +37,7 @@ describe('Button', () => {
   it('renders as Slot when asChild is true', () => {
     render(
       <Button asChild>
-        <a href="/test">Link Button</a>
+        <a href="https://example.com">Link Button</a>
       </Button>
     )
 

@@ -15,7 +15,8 @@ jest.mock('next-intl', () => ({
       'errorOccurred': 'An error occurred'
     }
     return translations[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/navigation
@@ -173,7 +174,7 @@ describe('UpdatePasswordForm', () => {
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/admin')
+      expect(mockPush).toHaveBeenCalledWith('/en/admin')
     })
   })
 

@@ -20,7 +20,8 @@ jest.mock('next-intl', () => ({
       'errorOccurred': 'An error occurred'
     }
     return translations[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/navigation
@@ -171,12 +172,12 @@ describe('SignUpForm', () => {
       email: 'test@example.com',
       password: 'password123',
       options: {
-        emailRedirectTo: 'http://localhost/admin'
+        emailRedirectTo: 'http://localhost/en/admin'
       }
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/auth/sign-up-success')
+      expect(mockPush).toHaveBeenCalledWith('/en/auth/sign-up-success')
     })
   })
 
@@ -394,7 +395,7 @@ describe('SignUpForm', () => {
       email: 'test@example.com',
       password: 'password123',
       options: {
-        emailRedirectTo: 'http://localhost/admin'
+        emailRedirectTo: 'http://localhost/en/admin'
       }
     })
   })

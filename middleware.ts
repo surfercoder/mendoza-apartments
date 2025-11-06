@@ -13,14 +13,6 @@ export async function middleware(request: NextRequest) {
   // Pass the existing response into Supabase session updater to avoid losing headers/cookies
   const responseWithSession = await updateSession(request, baseResponse as NextResponse);
 
-  // Ensure default locale is Spanish for first-time visitors
-  if (!request.cookies.get('NEXT_LOCALE')) {
-    responseWithSession.cookies.set('NEXT_LOCALE', 'es', {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 365 // 1 year
-    });
-  }
-
   return responseWithSession as NextResponse;
 }
 

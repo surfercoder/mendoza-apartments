@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin();
 
 // Derive Supabase project host from env to configure next/image remote patterns
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,4 +39,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -69,10 +69,10 @@ export function ImageGalleryModal({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-4 top-4 z-50 rounded-sm"
+          className="absolute right-4 top-4 z-50 rounded-md bg-white !text-black hover:bg-gray-100 shadow-lg"
           onClick={onClose}
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 text-black" />
         </Button>
 
         {/* Image counter */}

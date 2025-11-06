@@ -43,15 +43,24 @@ export async function updateSession(request: NextRequest, response?: NextRespons
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Check if pathname is an auth route (with or without locale prefix)
+  const isAuthRoute = request.nextUrl.pathname.match(/^\/(en|es)?\/?auth/) || 
+                      request.nextUrl.pathname.match(/^\/(en|es)?\/?login/);
+  const isRootPath = request.nextUrl.pathname === "/" || 
+                     request.nextUrl.pathname === "/en" || 
+                     request.nextUrl.pathname === "/es";
+
   if (
-    request.nextUrl.pathname !== "/" &&
+    !isRootPath &&
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !isAuthRoute
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
+    // Extract locale from pathname (e.g., /en/admin -> en)
+    const localeMatch = request.nextUrl.pathname.match(/^\/([^\/]+)/);
+    const locale = localeMatch ? localeMatch[1] : 'es'; // default to 'es'
+    url.pathname = `/${locale}/auth/login`;
     return NextResponse.redirect(url);
   }
 

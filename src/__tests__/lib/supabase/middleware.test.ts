@@ -242,9 +242,9 @@ describe('lib/supabase/middleware', () => {
   })
 
   it('should handle URL cloning for redirects', async () => {
-    const mockRequest = createMockRequest('/protected')
+    const mockRequest = createMockRequest('/en/protected')
     const mockSupabaseClient = createMockSupabaseClient(null)
-    const mockClonedUrl = { pathname: '/protected' }
+    const mockClonedUrl = { pathname: '/en/protected' }
     const mockRedirectResponse = { id: 'redirect-response' }
 
     ;(mockRequest.nextUrl.clone as jest.Mock).mockReturnValue(mockClonedUrl)
@@ -254,7 +254,7 @@ describe('lib/supabase/middleware', () => {
     const result = await updateSession(mockRequest)
 
     expect(mockRequest.nextUrl.clone).toHaveBeenCalled()
-    expect(mockClonedUrl.pathname).toBe('/auth/login')
+    expect(mockClonedUrl.pathname).toBe('/en/auth/login')
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(mockClonedUrl)
     expect(result).toBe(mockRedirectResponse)
   })
