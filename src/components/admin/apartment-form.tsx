@@ -52,6 +52,23 @@ const createApartmentSchema = (tValidation: (key: string) => string) => z.object
     bbq: z.boolean().optional(),
     washing_machine: z.boolean().optional(),
     mountain_view: z.boolean().optional(),
+    hot_water: z.boolean().optional(),
+    heating: z.boolean().optional(),
+    coffee_maker: z.boolean().optional(),
+    microwave: z.boolean().optional(),
+    oven: z.boolean().optional(),
+    refrigerator: z.boolean().optional(),
+    iron: z.boolean().optional(),
+    hair_dryer: z.boolean().optional(),
+    tv: z.boolean().optional(),
+    fire_extinguisher: z.boolean().optional(),
+    crib: z.boolean().optional(),
+    blackout_curtains: z.boolean().optional(),
+    bidet: z.boolean().optional(),
+    dishwasher: z.boolean().optional(),
+    single_floor: z.boolean().optional(),
+    long_term_available: z.boolean().optional(),
+    cleaning_service: z.boolean().optional(),
   }),
 })
 
@@ -80,6 +97,23 @@ type ApartmentFormData = {
     bbq?: boolean;
     washing_machine?: boolean;
     mountain_view?: boolean;
+    hot_water?: boolean;
+    heating?: boolean;
+    coffee_maker?: boolean;
+    microwave?: boolean;
+    oven?: boolean;
+    refrigerator?: boolean;
+    iron?: boolean;
+    hair_dryer?: boolean;
+    tv?: boolean;
+    fire_extinguisher?: boolean;
+    crib?: boolean;
+    blackout_curtains?: boolean;
+    bidet?: boolean;
+    dishwasher?: boolean;
+    single_floor?: boolean;
+    long_term_available?: boolean;
+    cleaning_service?: boolean;
   };
 }
 
@@ -125,6 +159,23 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
         bbq: apartment?.characteristics?.bbq || false,
         washing_machine: apartment?.characteristics?.washing_machine || false,
         mountain_view: apartment?.characteristics?.mountain_view || false,
+        hot_water: apartment?.characteristics?.hot_water || false,
+        heating: apartment?.characteristics?.heating || false,
+        coffee_maker: apartment?.characteristics?.coffee_maker || false,
+        microwave: apartment?.characteristics?.microwave || false,
+        oven: apartment?.characteristics?.oven || false,
+        refrigerator: apartment?.characteristics?.refrigerator || false,
+        iron: apartment?.characteristics?.iron || false,
+        hair_dryer: apartment?.characteristics?.hair_dryer || false,
+        tv: apartment?.characteristics?.tv || false,
+        fire_extinguisher: apartment?.characteristics?.fire_extinguisher || false,
+        crib: apartment?.characteristics?.crib || false,
+        blackout_curtains: apartment?.characteristics?.blackout_curtains || false,
+        bidet: apartment?.characteristics?.bidet || false,
+        dishwasher: apartment?.characteristics?.dishwasher || false,
+        single_floor: apartment?.characteristics?.single_floor || false,
+        long_term_available: apartment?.characteristics?.long_term_available || false,
+        cleaning_service: apartment?.characteristics?.cleaning_service || false,
       },
     },
   })
@@ -414,11 +465,28 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                 { name: "bbq", label: t('bbq') },
                 { name: "washing_machine", label: t('washing_machine') },
                 { name: "mountain_view", label: t('mountain_view') },
+                { name: "hot_water", label: t('hot_water') },
+                { name: "heating", label: t('heating') },
+                { name: "coffee_maker", label: t('coffee_maker') },
+                { name: "microwave", label: t('microwave') },
+                { name: "oven", label: t('oven') },
+                { name: "refrigerator", label: t('refrigerator') },
+                { name: "iron", label: t('iron') },
+                { name: "hair_dryer", label: t('hair_dryer') },
+                { name: "tv", label: t('tv') },
+                { name: "fire_extinguisher", label: t('fire_extinguisher') },
+                { name: "crib", label: t('crib') },
+                { name: "blackout_curtains", label: t('blackout_curtains') },
+                { name: "bidet", label: t('bidet') },
+                { name: "dishwasher", label: t('dishwasher') },
+                { name: "single_floor", label: t('single_floor') },
+                { name: "long_term_available", label: t('long_term_available') },
+                { name: "cleaning_service", label: t('cleaning_service') },
               ].map((characteristic) => (
                 <FormField
                   key={characteristic.name}
                   control={form.control}
-                  name={`characteristics.${characteristic.name}` as `characteristics.${'wifi' | 'kitchen' | 'air_conditioning' | 'parking' | 'pool' | 'balcony' | 'terrace' | 'garden' | 'bbq' | 'washing_machine' | 'mountain_view'}`}
+                  name={`characteristics.${characteristic.name}` as any}
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
@@ -447,7 +515,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
               {/* File upload */}
               <div className="space-y-2">
                 <Label htmlFor="imageFiles">Upload images</Label>
-                <Input id="imageFiles" type="file" accept="image/*" multiple onChange={(e) => handleFilesSelected(e.target.files)} />
+                <Input id="imageFiles" type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple onChange={(e) => handleFilesSelected(e.target.files)} />
                 {isUploading && (
                   <div className="text-xs text-muted-foreground flex items-center gap-2">
                     <Loader2 className="h-3 w-3 animate-spin" /> Uploading...

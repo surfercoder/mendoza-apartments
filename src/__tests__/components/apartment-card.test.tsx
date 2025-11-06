@@ -57,6 +57,19 @@ jest.mock('@/components/booking-modal', () => ({
   )
 }))
 
+// Mock ImageGalleryModal
+jest.mock('@/components/image-gallery-modal', () => ({
+  ImageGalleryModal: ({ images, isOpen, onClose, apartmentTitle }: any) => (
+    isOpen ? (
+      <div data-testid="image-gallery-modal">
+        <div>Image Gallery for {apartmentTitle}</div>
+        <div>Images: {images.length}</div>
+        <button onClick={onClose}>Close Gallery</button>
+      </div>
+    ) : null
+  )
+}))
+
 // Mock UI components
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, ...props }: any) => (
@@ -441,5 +454,79 @@ describe('ApartmentCard', () => {
 
     const description = screen.getByText('Beautiful apartment in the city center with amazing views')
     expect(description).toHaveClass('line-clamp-2')
+  })
+
+  it('opens image gallery modal when image is clicked', async () => {
+    const user = userEvent.setup()
+    render(<ApartmentCard apartment={mockApartment} />)
+
+    const imageContainer = screen.getByAltText('Luxury Downtown Apartment').parentElement
+    await act(async () => {
+      await user.click(imageContainer!)
+    })
+
+    expect(screen.getByTestId('image-gallery-modal')).toBeInTheDocument()
+    expect(screen.getByText('Image Gallery for Luxury Downtown Apartment')).toBeInTheDocument()
+    expect(screen.getByText('Images: 2')).toBeInTheDocument()
+  })
+
+  it('closes image gallery modal when close is clicked', async () => {
+    const user = userEvent.setup()
+    render(<ApartmentCard apartment={mockApartment} />)
+
+    // Open gallery
+    const imageContainer = screen.getByAltText('Luxury Downtown Apartment').parentElement
+    await act(async () => {
+      await user.click(imageContainer!)
+    })
+
+    // Close gallery
+    const closeButton = screen.getByText('Close Gallery')
+    await act(async () => {
+      await user.click(closeButton)
+    })
+
+    expect(screen.queryByTestId('image-gallery-modal')).not.toBeInTheDocument()
+  })
+
+  it('shows image count indicator when multiple images', () => {
+    render(<ApartmentCard apartment={mockApartment} />)
+
+    expect(screen.getByText('+1 more')).toBeInTheDocument()
+  })
+
+  it('does not show image count indicator for single image', () => {
+    const apartmentWithOneImage = {
+      ...mockApartment,
+      images: ['https://example.com/image1.jpg']
+    }
+
+    render(<ApartmentCard apartment={apartmentWithOneImage} />)
+
+    expect(screen.queryByText(/more/)).not.toBeInTheDocument()
+  })
+
+  it('applies hover effect to image', () => {
+    render(<ApartmentCard apartment={mockApartment} />)
+
+    const image = screen.getByAltText('Luxury Downtown Apartment')
+    expect(image).toHaveClass('transition-transform', 'group-hover:scale-105')
+  })
+
+  it('does not open gallery when clicking on apartment without images', async () => {
+    const user = userEvent.setup()
+    const apartmentWithoutImages = {
+      ...mockApartment,
+      images: []
+    }
+
+    render(<ApartmentCard apartment={apartmentWithoutImages} />)
+
+    const placeholder = screen.getByText('No image available').parentElement
+    await act(async () => {
+      await user.click(placeholder!)
+    })
+
+    expect(screen.queryByTestId('image-gallery-modal')).not.toBeInTheDocument()
   })
 })

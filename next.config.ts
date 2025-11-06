@@ -13,7 +13,7 @@ try {
       {
         protocol: "https",
         hostname,
-        pathname: "/storage/v1/object/public/apartments/**",
+        pathname: "/storage/v1/object/public/**",
       },
     ];
   } else {
@@ -22,7 +22,7 @@ try {
       {
         protocol: "https",
         hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/apartments/**",
+        pathname: "/storage/v1/object/public/**",
       },
     ];
   }

@@ -16,25 +16,25 @@ Discover and manage beautiful apartment listings in Mendoza, Argentina. The proj
 
 ## Highlights & Features
 
-- **Next.js App Router (v15)** with **React 19** and **TypeScript**.
+- **Next.js App Router (v16)** with **React 19** and **TypeScript**.
 - **Internationalization (next-intl)** with middleware-based locale detection and cookie persistence.
 - **Supabase** integration for data (Postgres) and SSR-friendly session handling via `@supabase/ssr`.
 - **UI/UX** with **Tailwind CSS v4** and **shadcn/ui** (Radix primitives). Dark mode via `next-themes`.
 - **Forms & Validation** via `react-hook-form` and `zod`.
 - **Icons** with `lucide-react`.
 - **Testing** with **Jest** and **@testing-library/react**.
-- **Strict linting** (eslint) and **type safety** (tsc).
+- **Strict linting** (ESLint 9 flat config) and **type safety** (tsc).
 
 ## Tech Stack
 
-- Framework: `next@15`, `react@19`, `react-dom@19`, TypeScript
+- Framework: `next@16`, `react@19`, `react-dom@19`, TypeScript
 - Styling: `tailwindcss@4`, shadcn/ui, Radix UI
 - i18n: `next-intl`
 - Data: `@supabase/supabase-js`, `@supabase/ssr`
 - State/UI: `next-themes`, `lucide-react`, `date-fns`
 - Forms: `react-hook-form`, `zod`
 - Testing: `jest`, `@testing-library/react`, `@testing-library/jest-dom`
-- Tooling: `eslint`, `tsc`
+- Tooling: `eslint` (v9 flat config), `tsc`
 
 ## Architecture
 

@@ -29,8 +29,8 @@ describe('lib/supabase/storage', () => {
 
   it('should upload file successfully and return public URL', async () => {
     const mockFile = createMockFile('test-image.jpg')
-    const expectedFilePath = 'public/1234567890-test-image.jpg'
-    const expectedPublicUrl = 'https://test.supabase.co/storage/v1/object/public/apartments/public/1234567890-test-image.jpg'
+    const expectedFilePath = '1234567890-test-image.jpg'
+    const expectedPublicUrl = 'https://test.supabase.co/storage/v1/object/public/apartment-images/1234567890-test-image.jpg'
 
     const mockSupabaseClient = {
       storage: {
@@ -50,7 +50,7 @@ describe('lib/supabase/storage', () => {
 
     const result = await uploadApartmentImage(mockFile)
 
-    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartments')
+    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartment-images')
     expect(mockSupabaseClient.storage.from().upload).toHaveBeenCalledWith(
       expectedFilePath,
       mockFile,
@@ -65,7 +65,7 @@ describe('lib/supabase/storage', () => {
 
   it('should handle file names with spaces by replacing them with dashes', async () => {
     const mockFile = createMockFile('test image with spaces.jpg')
-    const expectedFilePath = 'public/1234567890-test-image-with-spaces.jpg'
+    const expectedFilePath = '1234567890-test-image-with-spaces.jpg'
 
     const mockSupabaseClient = {
       storage: {
@@ -182,13 +182,13 @@ describe('lib/supabase/storage', () => {
 
     expect(mockSupabaseClient.storage.from().upload).toHaveBeenNthCalledWith(
       1,
-      'public/1111111111-image1.jpg',
+      '1111111111-image1.jpg',
       mockFile1,
       expect.any(Object)
     )
     expect(mockSupabaseClient.storage.from().upload).toHaveBeenNthCalledWith(
       2,
-      'public/2222222222-image2.jpg',
+      '2222222222-image2.jpg',
       mockFile2,
       expect.any(Object)
     )
@@ -226,11 +226,10 @@ describe('lib/supabase/storage', () => {
   })
 
   it('should handle different file types', async () => {
-    const fileTypes = [
+    const validFileTypes = [
       { name: 'image.jpg', type: 'image/jpeg' },
       { name: 'image.png', type: 'image/png' },
-      { name: 'image.webp', type: 'image/webp' },
-      { name: 'document.pdf', type: 'application/pdf' }
+      { name: 'image.webp', type: 'image/webp' }
     ]
 
     const mockSupabaseClient = {
@@ -249,15 +248,20 @@ describe('lib/supabase/storage', () => {
 
     mockCreateClient.mockReturnValue(mockSupabaseClient as unknown as SupabaseClient)
 
-    for (const fileType of fileTypes) {
+    for (const fileType of validFileTypes) {
       const mockFile = createMockFile(fileType.name, fileType.type)
       const result = await uploadApartmentImage(mockFile)
 
       expect(result).toEqual({ url: 'https://test.url' })
     }
+
+    // Test invalid file type (PDF)
+    const invalidFile = createMockFile('document.pdf', 'application/pdf')
+    const invalidResult = await uploadApartmentImage(invalidFile)
+    expect(invalidResult).toEqual({ error: 'Invalid file type. Please upload JPEG, PNG, or WebP images.' })
   })
 
-  it('should store files in apartments bucket', async () => {
+  it('should store files in apartment-images bucket', async () => {
     const mockFile = createMockFile('test-image.jpg')
 
     const mockSupabaseClient = {
@@ -278,6 +282,6 @@ describe('lib/supabase/storage', () => {
 
     await uploadApartmentImage(mockFile)
 
-    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartments')
+    expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartment-images')
   })
 })

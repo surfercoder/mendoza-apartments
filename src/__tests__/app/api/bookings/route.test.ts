@@ -113,7 +113,6 @@ describe('/api/bookings', () => {
     });
 
     it('creates a booking without notes', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { notes, ...bookingDataWithoutNotes } = validBookingData;
 
       mockCreateBooking.mockResolvedValue(mockBooking);

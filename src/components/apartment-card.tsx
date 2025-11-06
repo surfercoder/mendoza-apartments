@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookingModal } from "@/components/booking-modal"
+import { ImageGalleryModal } from "@/components/image-gallery-modal"
 import { 
   Bed, 
   Bath, 
@@ -28,6 +29,7 @@ interface ApartmentCardProps {
 
 export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: ApartmentCardProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
+  const [isGalleryModalOpen, setIsGalleryModalOpen] = React.useState(false)
   const characteristics = apartment.characteristics || {}
   const t = useTranslations('listing')
   
@@ -48,14 +50,24 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <CardHeader className="p-0">
-        <div className="relative h-48 w-full">
+        <div 
+          className="relative h-48 w-full cursor-pointer group"
+          onClick={() => apartment.images && apartment.images.length > 0 && setIsGalleryModalOpen(true)}
+        >
           {apartment.images && apartment.images.length > 0 ? (
-            <Image
-              src={apartment.images[0]}
-              alt={apartment.title}
-              fill
-              className="object-cover"
-            />
+            <>
+              <Image
+                src={apartment.images[0]}
+                alt={apartment.title}
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+              {apartment.images.length > 1 && (
+                <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded-md text-xs">
+                  +{apartment.images.length - 1} more
+                </div>
+              )}
+            </>
           ) : (
             <div className="h-full w-full bg-gray-200 flex items-center justify-center">
               <span className="text-gray-500">{t('noImage')}</span>
@@ -164,6 +176,13 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
           isOpen={isBookingModalOpen}
           onClose={() => setIsBookingModalOpen(false)}
           onSuccess={handleBookingSuccess}
+        />
+        
+        <ImageGalleryModal
+          images={apartment.images || []}
+          isOpen={isGalleryModalOpen}
+          onClose={() => setIsGalleryModalOpen(false)}
+          apartmentTitle={apartment.title}
         />
       </CardFooter>
     </Card>
