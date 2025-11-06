@@ -2,6 +2,27 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SignUpForm } from '@/components/sign-up-form'
 
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'title': 'Sign up',
+      'description': 'Create a new account',
+      'email': 'Email',
+      'emailPlaceholder': 'm@example.com',
+      'password': 'Password',
+      'repeatPassword': 'Repeat Password',
+      'passwordMismatch': 'Passwords do not match',
+      'creatingAccount': 'Creating an account...',
+      'signUpButton': 'Sign up',
+      'haveAccount': 'Already have an account?',
+      'loginLink': 'Login',
+      'errorOccurred': 'An error occurred'
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()

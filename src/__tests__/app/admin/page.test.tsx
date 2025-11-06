@@ -12,7 +12,7 @@ jest.mock('@/components/admin/reservations-list', () => ({
 
 // Mock next-intl
 jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => (key: string) => {
+  useTranslations: jest.fn((namespace: string) => (key: string) => {
     const translations: Record<string, Record<string, string>> = {
       admin: {
         'dashboard.totalApartments': 'Total Apartments',
@@ -23,6 +23,8 @@ jest.mock('next-intl', () => ({
         'dashboard.quickActions': 'Quick Actions',
         'dashboard.apartmentsManagement': 'Apartments Management',
         'dashboard.createEditManage': 'Create, edit and manage your apartment listings',
+        'dashboard.reservationsManagement': 'Reservations Management',
+        'dashboard.manageBookingRequests': 'Manage all booking requests and reservations',
         'dialogs.createTitle': 'Add New Apartment',
         'dialogs.createDescription': 'Create a new apartment listing'
       },
@@ -31,9 +33,13 @@ jest.mock('next-intl', () => ({
         'inactive': 'Inactive',
         'viewPublicSite': 'View Public Site',
         'addNewApartment': 'Add New Apartment'
+      },
+      tabs: {
+        'apartments': 'Apartments',
+        'reservations': 'Reservations'
       }
     }
-    return translations['admin']?.[key] || translations['common']?.[key] || key
+    return translations[namespace]?.[key] || key
   })
 }))
 

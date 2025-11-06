@@ -20,7 +20,9 @@
       "availableForBooking": "Available for booking",
       "totalGuestsAcrossActive": "Total guests across all active apartments",
       "apartmentsManagement": "Apartments Management",
-      "createEditManage": "Create, edit, and manage your apartment listings"
+      "createEditManage": "Create, edit, and manage your apartment listings",
+      "reservationsManagement": "Reservations Management",
+      "manageBookingRequests": "Manage all booking requests and reservations"
     },
     "dialogs": {
       "createTitle": "Create New Apartment",
@@ -182,6 +184,125 @@
     "note": {
       "title": "Note:",
       "content": "This is a booking request. Admin will contact you within 24 hours to confirm availability and provide payment instructions."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "description": "Enter your email below to login to your account",
+      "email": "Email",
+      "emailPlaceholder": "m@example.com",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "loggingIn": "Logging in...",
+      "loginButton": "Login",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "errorOccurred": "An error occurred"
+    },
+    "signUp": {
+      "title": "Sign up",
+      "description": "Create a new account",
+      "email": "Email",
+      "emailPlaceholder": "m@example.com",
+      "password": "Password",
+      "repeatPassword": "Repeat Password",
+      "passwordMismatch": "Passwords do not match",
+      "creatingAccount": "Creating an account...",
+      "signUpButton": "Sign up",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Login",
+      "errorOccurred": "An error occurred"
+    },
+    "forgotPassword": {
+      "title": "Reset Your Password",
+      "description": "Type in your email and we'll send you a link to reset your password",
+      "email": "Email",
+      "emailPlaceholder": "m@example.com",
+      "sending": "Sending...",
+      "sendButton": "Send reset email",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Login",
+      "successTitle": "Check Your Email",
+      "successDescription": "Password reset instructions sent",
+      "successMessage": "If you registered using your email and password, you will receive a password reset email.",
+      "errorOccurred": "An error occurred"
+    },
+    "updatePassword": {
+      "title": "Reset Your Password",
+      "description": "Please enter your new password below.",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "New password",
+      "saving": "Saving...",
+      "saveButton": "Save new password",
+      "errorOccurred": "An error occurred"
+    },
+    "signUpSuccess": {
+      "title": "Thank you for signing up!",
+      "description": "Check your email to confirm",
+      "message": "You've successfully signed up. Please check your email to confirm your account before signing in."
+    },
+    "error": {
+      "title": "Sorry, something went wrong.",
+      "codeError": "Code error: {error}",
+      "unspecified": "An unspecified error occurred."
+    }
+  },
+  "reservations": {
+    "title": "Reservations Management",
+    "description": "Manage all booking requests and reservations",
+    "loading": "Loading reservations...",
+    "noReservations": "No reservations found",
+    "table": {
+      "guest": "Guest",
+      "apartment": "Apartment",
+      "dates": "Dates",
+      "guests": "Guests",
+      "total": "Total",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "view": "View",
+      "whatsapp": "WhatsApp",
+      "close": "Close"
+    },
+    "details": {
+      "title": "Reservation Details",
+      "description": "Complete information about this booking request",
+      "guestInfo": "Guest Information",
+      "apartmentInfo": "Apartment Information",
+      "bookingDetails": "Booking Details",
+      "statusActions": "Status & Actions",
+      "guestNotes": "Guest Notes",
+      "contactWhatsApp": "Contact on WhatsApp",
+      "name": "Name:",
+      "email": "Email:",
+      "phone": "Phone:",
+      "apartmentTitle": "Title:",
+      "address": "Address:",
+      "checkIn": "Check-in:",
+      "checkOut": "Check-out:",
+      "guests": "Guests:",
+      "total": "Total:",
+      "to": "to"
+    }
+  },
+  "tabs": {
+    "apartments": "Apartments",
+    "reservations": "Reservations"
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Español",
+    "ariaLabel": {
+      "argentina": "Argentina",
+      "unitedStates": "United States"
     }
   }
 }

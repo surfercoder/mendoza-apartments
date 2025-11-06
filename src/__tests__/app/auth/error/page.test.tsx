@@ -1,6 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import ErrorPage from '@/app/auth/error/page'
 
+// Mock next-intl/server
+jest.mock('next-intl/server', () => ({
+  getTranslations: jest.fn(async () => (key: string, params?: any) => {
+    const translations: Record<string, string> = {
+      'title': 'Sorry, something went wrong.',
+      'codeError': `Code error: ${params?.error || ''}`,
+      'unspecified': 'An unspecified error occurred.'
+    }
+    if (key === 'codeError' && params?.error) {
+      return `Code error: ${params.error}`
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock UI components
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,

@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { useState, useEffect } from "react"
+import { useTranslations } from "next-intl"
+import { format } from "date-fns"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -39,7 +41,6 @@ import {
   Clock,
   Eye
 } from "lucide-react"
-import { format } from "date-fns"
 import { Booking } from "@/lib/types"
 import { getAllBookings, updateBookingStatus } from "@/lib/supabase/bookings"
 import { openWhatsAppChat } from "@/lib/whatsapp"
@@ -60,8 +61,11 @@ export function ReservationsList() {
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [updating, setUpdating] = useState<string | null>(null)
   
-  // const t = useTranslations('admin')
-  // const tBooking = useTranslations('booking')
+  const t = useTranslations('reservations')
+  const tStatus = useTranslations('reservations.status')
+  const tActions = useTranslations('reservations.actions')
+  const tDetails = useTranslations('reservations.details')
+  const tTable = useTranslations('reservations.table')
 
   useEffect(() => {
     loadReservations()
@@ -103,11 +107,11 @@ export function ReservationsList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="text-orange-600"><Clock className="h-3 w-3 mr-1" />Pending</Badge>
+        return <Badge variant="outline" className="text-orange-600"><Clock className="h-3 w-3 mr-1" />{tStatus('pending')}</Badge>
       case 'confirmed':
-        return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />Confirmed</Badge>
+        return <Badge variant="outline" className="text-green-600"><CheckCircle className="h-3 w-3 mr-1" />{tStatus('confirmed')}</Badge>
       case 'cancelled':
-        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />Cancelled</Badge>
+        return <Badge variant="outline" className="text-red-600"><XCircle className="h-3 w-3 mr-1" />{tStatus('cancelled')}</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -137,8 +141,8 @@ export function ReservationsList() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Reservations</CardTitle>
-          <CardDescription>Loading reservations...</CardDescription>
+          <CardTitle>{t('title')}</CardTitle>
+          <CardDescription>{t('loading')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -152,9 +156,9 @@ export function ReservationsList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Reservations Management</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
         <CardDescription>
-          Manage all booking requests and reservations
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -162,13 +166,13 @@ export function ReservationsList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Guest</TableHead>
-                <TableHead>Apartment</TableHead>
-                <TableHead>Dates</TableHead>
-                <TableHead>Guests</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{tTable('guest')}</TableHead>
+                <TableHead>{tTable('apartment')}</TableHead>
+                <TableHead>{tTable('dates')}</TableHead>
+                <TableHead>{tTable('guests')}</TableHead>
+                <TableHead>{tTable('total')}</TableHead>
+                <TableHead>{tTable('status')}</TableHead>
+                <TableHead>{tTable('actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -204,7 +208,7 @@ export function ReservationsList() {
                         {format(new Date(reservation.check_in), "MMM dd, yyyy")}
                       </div>
                       <div className="text-muted-foreground">
-                        to {format(new Date(reservation.check_out), "MMM dd, yyyy")}
+                        {tDetails('to')} {format(new Date(reservation.check_out), "MMM dd, yyyy")}
                       </div>
                     </div>
                   </TableCell>
@@ -235,7 +239,7 @@ export function ReservationsList() {
                         }}
                       >
                         <Eye className="h-3 w-3 mr-1" />
-                        View
+                        {tActions('view')}
                       </Button>
                       <Dialog open={isDetailOpen && selectedReservation?.id === reservation.id} onOpenChange={(open) => {
                         setIsDetailOpen(open)
@@ -243,45 +247,45 @@ export function ReservationsList() {
                       }}>
                         <DialogContent className="sm:max-w-[600px]">
                           <DialogHeader>
-                            <DialogTitle>Reservation Details</DialogTitle>
+                            <DialogTitle>{tDetails('title')}</DialogTitle>
                             <DialogDescription>
-                              Complete information about this booking request
+                              {tDetails('description')}
                             </DialogDescription>
                           </DialogHeader>
                           {selectedReservation && (
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <h4 className="font-medium mb-2">Guest Information</h4>
+                                  <h4 className="font-medium mb-2">{tDetails('guestInfo')}</h4>
                                   <div className="space-y-1 text-sm">
-                                    <div><strong>Name:</strong> {selectedReservation.guest_name}</div>
-                                    <div><strong>Email:</strong> {selectedReservation.guest_email}</div>
+                                    <div><strong>{tDetails('name')}</strong> {selectedReservation.guest_name}</div>
+                                    <div><strong>{tDetails('email')}</strong> {selectedReservation.guest_email}</div>
                                     {selectedReservation.guest_phone && (
-                                      <div><strong>Phone:</strong> {selectedReservation.guest_phone}</div>
+                                      <div><strong>{tDetails('phone')}</strong> {selectedReservation.guest_phone}</div>
                                     )}
                                   </div>
                                 </div>
                                 <div>
-                                  <h4 className="font-medium mb-2">Apartment Information</h4>
+                                  <h4 className="font-medium mb-2">{tDetails('apartmentInfo')}</h4>
                                   <div className="space-y-1 text-sm">
-                                    <div><strong>Title:</strong> {selectedReservation.apartments.title}</div>
-                                    <div><strong>Address:</strong> {selectedReservation.apartments.address}</div>
+                                    <div><strong>{tDetails('apartmentTitle')}</strong> {selectedReservation.apartments.title}</div>
+                                    <div><strong>{tDetails('address')}</strong> {selectedReservation.apartments.address}</div>
                                   </div>
                                 </div>
                               </div>
                               
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                  <h4 className="font-medium mb-2">Booking Details</h4>
+                                  <h4 className="font-medium mb-2">{tDetails('bookingDetails')}</h4>
                                   <div className="space-y-1 text-sm">
-                                    <div><strong>Check-in:</strong> {format(new Date(selectedReservation.check_in), "MMM dd, yyyy")}</div>
-                                    <div><strong>Check-out:</strong> {format(new Date(selectedReservation.check_out), "MMM dd, yyyy")}</div>
-                                    <div><strong>Guests:</strong> {selectedReservation.total_guests}</div>
-                                    <div><strong>Total:</strong> ${selectedReservation.total_price}</div>
+                                    <div><strong>{tDetails('checkIn')}</strong> {format(new Date(selectedReservation.check_in), "MMM dd, yyyy")}</div>
+                                    <div><strong>{tDetails('checkOut')}</strong> {format(new Date(selectedReservation.check_out), "MMM dd, yyyy")}</div>
+                                    <div><strong>{tDetails('guests')}</strong> {selectedReservation.total_guests}</div>
+                                    <div><strong>{tDetails('total')}</strong> ${selectedReservation.total_price}</div>
                                   </div>
                                 </div>
                                 <div>
-                                  <h4 className="font-medium mb-2">Status & Actions</h4>
+                                  <h4 className="font-medium mb-2">{tDetails('statusActions')}</h4>
                                   <div className="space-y-2">
                                     <div>{getStatusBadge(selectedReservation.status)}</div>
                                     <Select
@@ -293,9 +297,9 @@ export function ReservationsList() {
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="pending">Pending</SelectItem>
-                                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                        <SelectItem value="pending">{tStatus('pending')}</SelectItem>
+                                        <SelectItem value="confirmed">{tStatus('confirmed')}</SelectItem>
+                                        <SelectItem value="cancelled">{tStatus('cancelled')}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -304,7 +308,7 @@ export function ReservationsList() {
                               
                               {selectedReservation.notes && (
                                 <div>
-                                  <h4 className="font-medium mb-2">Guest Notes</h4>
+                                  <h4 className="font-medium mb-2">{tDetails('guestNotes')}</h4>
                                   <div className="p-3 bg-muted rounded-md text-sm">
                                     {selectedReservation.notes}
                                   </div>
@@ -317,13 +321,13 @@ export function ReservationsList() {
                                   className="flex-1"
                                 >
                                   <MessageCircle className="h-4 w-4 mr-2" />
-                                  Contact on WhatsApp
+                                  {tDetails('contactWhatsApp')}
                                 </Button>
                                 <Button
                                   variant="outline"
                                   onClick={() => setIsDetailOpen(false)}
                                 >
-                                  Close
+                                  {tActions('close')}
                                 </Button>
                               </div>
                             </div>
@@ -337,7 +341,7 @@ export function ReservationsList() {
                         onClick={() => openWhatsApp(reservation)}
                       >
                         <MessageCircle className="h-3 w-3 mr-1" />
-                        WhatsApp
+                        {tActions('whatsapp')}
                       </Button>
                     </div>
                   </TableCell>
@@ -349,7 +353,7 @@ export function ReservationsList() {
         
         {reservations.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
-            No reservations found
+            {t('noReservations')}
           </div>
         )}
       </CardContent>

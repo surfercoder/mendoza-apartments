@@ -1,6 +1,18 @@
 import { render, screen } from '@testing-library/react'
 import SignUpSuccessPage from '@/app/auth/sign-up-success/page'
 
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'title': 'Thank you for signing up!',
+      'description': 'Check your email to confirm',
+      'message': "You've successfully signed up. Please check your email to confirm your account before signing in."
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock UI components
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,

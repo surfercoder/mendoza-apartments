@@ -20,7 +20,9 @@
       "availableForBooking": "Disponibles para reservar",
       "totalGuestsAcrossActive": "Huéspedes totales en todos los departamentos activos",
       "apartmentsManagement": "Gestión de departamentos",
-      "createEditManage": "Crea, edita y administra tus publicaciones"
+      "createEditManage": "Crea, edita y administra tus publicaciones",
+      "reservationsManagement": "Gestión de reservas",
+      "manageBookingRequests": "Administrá todas las solicitudes de reserva"
     },
     "dialogs": {
       "createTitle": "Crear nuevo departamento",
@@ -182,6 +184,125 @@
     "note": {
       "title": "Nota:",
       "content": "Esto es una solicitud de reserva. El administrador te va a contactar dentro de 24 horas para confirmar disponibilidad y medios de pago."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "description": "Ingresá tu email para iniciar sesión en tu cuenta",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "loggingIn": "Iniciando sesión...",
+      "loginButton": "Iniciar sesión",
+      "noAccount": "¿No tenés cuenta?",
+      "signUpLink": "Registrate",
+      "errorOccurred": "Ocurrió un error"
+    },
+    "signUp": {
+      "title": "Registrarse",
+      "description": "Crear una cuenta nueva",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "password": "Contraseña",
+      "repeatPassword": "Repetir contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "creatingAccount": "Creando cuenta...",
+      "signUpButton": "Registrarse",
+      "haveAccount": "¿Ya tenés cuenta?",
+      "loginLink": "Iniciar sesión",
+      "errorOccurred": "Ocurrió un error"
+    },
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "description": "Ingresá tu email y te enviaremos un link para restablecer tu contraseña",
+      "email": "Email",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "sending": "Enviando...",
+      "sendButton": "Enviar email de restablecimiento",
+      "haveAccount": "¿Ya tenés cuenta?",
+      "loginLink": "Iniciar sesión",
+      "successTitle": "Revisá tu email",
+      "successDescription": "Instrucciones de restablecimiento enviadas",
+      "successMessage": "Si te registraste usando tu email y contraseña, vas a recibir un email para restablecer tu contraseña.",
+      "errorOccurred": "Ocurrió un error"
+    },
+    "updatePassword": {
+      "title": "Restablecer contraseña",
+      "description": "Por favor ingresá tu nueva contraseña.",
+      "newPassword": "Nueva contraseña",
+      "newPasswordPlaceholder": "Nueva contraseña",
+      "saving": "Guardando...",
+      "saveButton": "Guardar nueva contraseña",
+      "errorOccurred": "Ocurrió un error"
+    },
+    "signUpSuccess": {
+      "title": "¡Gracias por registrarte!",
+      "description": "Revisá tu email para confirmar",
+      "message": "Te registraste exitosamente. Por favor revisá tu email para confirmar tu cuenta antes de iniciar sesión."
+    },
+    "error": {
+      "title": "Lo sentimos, algo salió mal.",
+      "codeError": "Código de error: {error}",
+      "unspecified": "Ocurrió un error no especificado."
+    }
+  },
+  "reservations": {
+    "title": "Gestión de reservas",
+    "description": "Administrá todas las solicitudes de reserva",
+    "loading": "Cargando reservas...",
+    "noReservations": "No se encontraron reservas",
+    "table": {
+      "guest": "Huésped",
+      "apartment": "Departamento",
+      "dates": "Fechas",
+      "guests": "Huéspedes",
+      "total": "Total",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "confirmed": "Confirmada",
+      "cancelled": "Cancelada"
+    },
+    "actions": {
+      "view": "Ver",
+      "whatsapp": "WhatsApp",
+      "close": "Cerrar"
+    },
+    "details": {
+      "title": "Detalles de la reserva",
+      "description": "Información completa sobre esta solicitud de reserva",
+      "guestInfo": "Información del huésped",
+      "apartmentInfo": "Información del departamento",
+      "bookingDetails": "Detalles de la reserva",
+      "statusActions": "Estado y acciones",
+      "guestNotes": "Notas del huésped",
+      "contactWhatsApp": "Contactar por WhatsApp",
+      "name": "Nombre:",
+      "email": "Email:",
+      "phone": "Teléfono:",
+      "apartmentTitle": "Título:",
+      "address": "Dirección:",
+      "checkIn": "Entrada:",
+      "checkOut": "Salida:",
+      "guests": "Huéspedes:",
+      "total": "Total:",
+      "to": "a"
+    }
+  },
+  "tabs": {
+    "apartments": "Departamentos",
+    "reservations": "Reservas"
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Español",
+    "ariaLabel": {
+      "argentina": "Argentina",
+      "unitedStates": "Estados Unidos"
     }
   }
 }

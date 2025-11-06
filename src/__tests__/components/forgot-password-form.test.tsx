@@ -2,6 +2,27 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ForgotPasswordForm } from '@/components/forgot-password-form'
 
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'title': 'Reset Your Password',
+      'description': "Type in your email and we'll send you a link to reset your password",
+      'email': 'Email',
+      'emailPlaceholder': 'm@example.com',
+      'sending': 'Sending...',
+      'sendButton': 'Send reset email',
+      'haveAccount': 'Already have an account?',
+      'loginLink': 'Login',
+      'successTitle': 'Check Your Email',
+      'successDescription': 'Password reset instructions sent',
+      'successMessage': 'If you registered using your email and password, you will receive a password reset email.',
+      'errorOccurred': 'An error occurred'
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock Supabase client
 jest.mock('@/lib/supabase/client', () => ({
   createClient: jest.fn()

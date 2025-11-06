@@ -2,6 +2,22 @@ import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { UpdatePasswordForm } from '@/components/update-password-form'
 
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'title': 'Reset Your Password',
+      'description': 'Please enter your new password below.',
+      'newPassword': 'New password',
+      'newPasswordPlaceholder': 'New password',
+      'saving': 'Saving...',
+      'saveButton': 'Save new password',
+      'errorOccurred': 'An error occurred'
+    }
+    return translations[key] || key
+  })
+}))
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()

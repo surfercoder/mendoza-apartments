@@ -4,6 +4,60 @@ import { ReservationsList } from '@/components/admin/reservations-list'
 import { getAllBookings, updateBookingStatus } from '@/lib/supabase/bookings'
 import { openWhatsAppChat } from '@/lib/whatsapp'
 
+// Mock next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn((namespace: string) => (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      reservations: {
+        'title': 'Reservations Management',
+        'description': 'Manage all booking requests and reservations',
+        'loading': 'Loading reservations...',
+        'noReservations': 'No reservations found'
+      },
+      'reservations.table': {
+        'guest': 'Guest',
+        'apartment': 'Apartment',
+        'dates': 'Dates',
+        'guests': 'Guests',
+        'total': 'Total',
+        'status': 'Status',
+        'actions': 'Actions'
+      },
+      'reservations.status': {
+        'pending': 'Pending',
+        'confirmed': 'Confirmed',
+        'cancelled': 'Cancelled'
+      },
+      'reservations.actions': {
+        'view': 'View',
+        'whatsapp': 'WhatsApp',
+        'close': 'Close'
+      },
+      'reservations.details': {
+        'title': 'Reservation Details',
+        'description': 'Complete information about this booking request',
+        'guestInfo': 'Guest Information',
+        'apartmentInfo': 'Apartment Information',
+        'bookingDetails': 'Booking Details',
+        'statusActions': 'Status & Actions',
+        'guestNotes': 'Guest Notes',
+        'contactWhatsApp': 'Contact on WhatsApp',
+        'name': 'Name:',
+        'email': 'Email:',
+        'phone': 'Phone:',
+        'apartmentTitle': 'Title:',
+        'address': 'Address:',
+        'checkIn': 'Check-in:',
+        'checkOut': 'Check-out:',
+        'guests': 'Guests:',
+        'total': 'Total:',
+        'to': 'to'
+      }
+    }
+    return translations[namespace]?.[key] || key
+  })
+}))
+
 jest.mock('@/lib/supabase/bookings')
 jest.mock('@/lib/whatsapp')
 

@@ -10,7 +10,16 @@ jest.mock('react', () => ({
 
 // Mock next-intl
 jest.mock('next-intl', () => ({
-  useLocale: jest.fn(() => 'en')
+  useLocale: jest.fn(() => 'en'),
+  useTranslations: jest.fn(() => (key: string) => {
+    const translations: Record<string, string> = {
+      'english': 'English',
+      'spanish': 'Español',
+      'ariaLabel.argentina': 'Argentina',
+      'ariaLabel.unitedStates': 'United States'
+    }
+    return translations[key] || key
+  })
 }))
 
 // Mock next/navigation

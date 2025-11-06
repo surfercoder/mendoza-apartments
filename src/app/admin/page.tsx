@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 export default function AdminDashboard() {
   const t = useTranslations('admin')
   const tc = useTranslations('common')
+  const tTabs = useTranslations('tabs')
   const [apartments, setApartments] = React.useState<Apartment[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
@@ -130,11 +131,11 @@ export default function AdminDashboard() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="apartments" className="flex items-center gap-2">
             <Home className="h-4 w-4" />
-            Apartments
+            {tTabs('apartments')}
           </TabsTrigger>
           <TabsTrigger value="reservations" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            Reservations
+            {tTabs('reservations')}
           </TabsTrigger>
         </TabsList>
 
@@ -178,8 +179,8 @@ export default function AdminDashboard() {
 
         <TabsContent value="reservations" className="space-y-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Reservations Management</h2>
-            <p className="text-muted-foreground">Manage all booking requests and reservations</p>
+            <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.reservationsManagement')}</h2>
+            <p className="text-muted-foreground">{t('dashboard.manageBookingRequests')}</p>
           </div>
           
           <ReservationsList />
