@@ -44,6 +44,8 @@
       "description": "Description",
       "descriptionPlaceholder": "Describe the apartment, its location, and amenities...",
       "address": "Address",
+      "googleMapsUrl": "Google Maps URL",
+      "googleMapsUrlDescription": "Share link from Google Maps (e.g., https://maps.app.goo.gl/...)",
       "pricePerNight": "Price per Night ($)",
       "maxGuests": "Max Guests",
       "activeListing": "Active Listing",

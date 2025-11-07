@@ -14,13 +14,14 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const t = useTranslations('auth.login');
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export function LoginForm({
       if (error) throw error;
       // Redirect to admin dashboard after successful login.
       // Use replace + refresh to avoid stale middleware/session race in prod.
-      router.replace("/admin");
+      router.replace(`/${locale}/admin`);
       router.refresh();
     } catch (error: unknown) {
       const message = error instanceof Error && typeof error.message === 'string'

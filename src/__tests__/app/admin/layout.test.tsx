@@ -6,6 +6,11 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn()
 }))
 
+// Mock next-intl/server
+jest.mock('next-intl/server', () => ({
+  setRequestLocale: jest.fn()
+}))
+
 // Mock Supabase server client
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn()

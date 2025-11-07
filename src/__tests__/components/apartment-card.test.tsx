@@ -23,7 +23,8 @@ jest.mock('next-intl', () => ({
       'selectDates': 'Select Dates'
     }
     return translations[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/image

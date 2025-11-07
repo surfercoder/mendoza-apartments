@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { setRequestLocale } from "next-intl/server"
 
 export default async function AdminLayout({
   children,
@@ -10,6 +11,10 @@ export default async function AdminLayout({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params
+  
+  // Enable static rendering
+  setRequestLocale(locale)
+  
   const supabase = await createClient()
   
   const {

@@ -33,6 +33,7 @@ const createApartmentSchema = (tValidation: (key: string) => string) => z.object
   price_per_night: z.number().min(1, tValidation('priceMinValue')),
   max_guests: z.number().min(1, tValidation('guestsMinValue')),
   address: z.string().min(1, tValidation('addressRequired')),
+  google_maps_url: z.string().url(tValidation('validUrlRequired')).optional(),
   contact_email: z.string().email(tValidation('validEmailRequired')),
   contact_phone: z.string().optional(),
   whatsapp_number: z.string().optional(),
@@ -78,6 +79,7 @@ type ApartmentFormData = {
   price_per_night: number;
   max_guests: number;
   address: string;
+  google_maps_url?: string;
   contact_email: string;
   contact_phone?: string;
   whatsapp_number?: string;
@@ -142,6 +144,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
       price_per_night: apartment?.price_per_night || 0,
       max_guests: apartment?.max_guests || 1,
       address: apartment?.address || "",
+      google_maps_url: apartment?.google_maps_url || "",
       contact_email: apartment?.contact_email || "florcaliri@gmail.com",
       contact_phone: apartment?.contact_phone || "+5492616530387",
       whatsapp_number: apartment?.whatsapp_number || "+5492616530387",
@@ -304,6 +307,23 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
                     <FormControl>
                       <Input placeholder="San Martín 1234, Mendoza Capital" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="google_maps_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('googleMapsUrl')}</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://maps.app.goo.gl/..." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      {t('googleMapsUrlDescription')}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

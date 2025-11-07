@@ -19,7 +19,8 @@ jest.mock('next-intl', () => ({
       'errorOccurred': 'An error occurred'
     }
     return translations[key] || key
-  })
+  }),
+  useLocale: jest.fn(() => 'en')
 }))
 
 // Mock next/navigation
@@ -140,7 +141,7 @@ describe('LoginForm', () => {
 
     await waitFor(() => {
       // We now use replace + refresh for robust redirect in prod
-      expect(mockReplace).toHaveBeenCalledWith('/admin')
+      expect(mockReplace).toHaveBeenCalledWith('/en/admin')
       expect(mockRefresh).toHaveBeenCalled()
     })
   })

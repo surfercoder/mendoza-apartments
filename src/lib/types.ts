@@ -37,6 +37,9 @@ export interface Apartment {
   price_per_night: number;
   max_guests: number;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  google_maps_url?: string;
   images: string[];
   principal_image_index: number;
   contact_email: string;
@@ -118,6 +121,9 @@ export interface ApartmentFormData {
   price_per_night: number;
   max_guests: number;
   address: string;
+  latitude?: number;
+  longitude?: number;
+  google_maps_url?: string;
   images: string[];
   principal_image_index: number;
   contact_email: string;

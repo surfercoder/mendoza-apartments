@@ -22,13 +22,14 @@ jest.mock('next-intl', () => ({
   })
 }))
 
-// Mock next/navigation
-jest.mock('next/navigation', () => ({
+// Mock @/i18n/routing
+jest.mock('@/i18n/routing', () => ({
   useRouter: jest.fn(() => ({
     push: jest.fn(),
+    replace: jest.fn(),
     refresh: jest.fn()
   })),
-  usePathname: jest.fn(() => '/en')
+  usePathname: jest.fn(() => '/')
 }))
 
 // Mock UI components
@@ -65,7 +66,7 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 
 import { useTransition } from 'react'
 import { useLocale } from 'next-intl'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/routing'
 
 const mockUseTransition = useTransition as jest.MockedFunction<typeof useTransition>
 const mockUseLocale = useLocale as jest.MockedFunction<typeof useLocale>
@@ -79,6 +80,7 @@ Object.defineProperty(document, 'cookie', {
 
 describe('LanguageSwitcher', () => {
   const mockPush = jest.fn()
+  const mockReplace = jest.fn()
   const mockRefresh = jest.fn()
   const mockStartTransition = jest.fn()
 
@@ -88,7 +90,7 @@ describe('LanguageSwitcher', () => {
     mockUseRouter.mockReturnValue({
       refresh: mockRefresh,
       push: mockPush,
-      replace: jest.fn(),
+      replace: mockReplace,
       prefetch: jest.fn(),
       back: jest.fn(),
       forward: jest.fn()
@@ -183,7 +185,7 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(mockPush).toHaveBeenCalledWith('/en')
+    expect(mockReplace).toHaveBeenCalledWith('/', {locale: 'en'})
   })
 
   it('switches to Spanish locale', async () => {
@@ -196,7 +198,7 @@ describe('LanguageSwitcher', () => {
 
     render(<LanguageSwitcher />)
 
-    const spanishMenuItem = screen.getByText('Español').closest('[data-testid=\"dropdown-menu-item\"]')
+    const spanishMenuItem = screen.getByText('Español').closest('[data-testid="dropdown-menu-item"]')
     expect(spanishMenuItem).toBeInTheDocument()
 
     await act(async () => {
@@ -209,7 +211,7 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(mockPush).toHaveBeenCalledWith('/es')
+    expect(mockReplace).toHaveBeenCalledWith('/', {locale: 'es'})
   })
 
   it('navigates to correct URL path', async () => {
@@ -231,8 +233,8 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    // Check that router.push was called with the correct path
-    expect(mockPush).toHaveBeenCalledWith('/en')
+    // Check that router.replace was called with the correct path and locale
+    expect(mockReplace).toHaveBeenCalledWith('/', {locale: 'en'})
   })
 
   it('aligns dropdown menu content to end', () => {
@@ -248,7 +250,7 @@ describe('LanguageSwitcher', () => {
     expect(mockUseTransition).toHaveBeenCalled()
   })
 
-  it('calls router.push when locale changes', async () => {
+  it('calls router.replace when locale changes', async () => {
     const user = userEvent.setup()
 
     mockStartTransition.mockImplementation((callback) => {
@@ -263,7 +265,7 @@ describe('LanguageSwitcher', () => {
       await user.click(englishMenuItem!)
     })
 
-    expect(mockPush).toHaveBeenCalledTimes(1)
+    expect(mockReplace).toHaveBeenCalledTimes(1)
   })
 
   it('handles same locale selection', async () => {
@@ -276,7 +278,7 @@ describe('LanguageSwitcher', () => {
 
     render(<LanguageSwitcher />)
 
-    const englishMenuItem = screen.getByText('English').closest('[data-testid=\"dropdown-menu-item\"]')
+    const englishMenuItem = screen.getByText('English').closest('[data-testid="dropdown-menu-item"]')
 
     await act(async () => {
       await user.click(englishMenuItem!)
@@ -288,7 +290,7 @@ describe('LanguageSwitcher', () => {
     const transitionCallback = mockStartTransition.mock.calls[0][0]
     transitionCallback()
 
-    expect(mockPush).toHaveBeenCalledWith('/en')
+    expect(mockReplace).toHaveBeenCalledWith('/', {locale: 'en'})
   })
 
   it('renders correct structure', () => {

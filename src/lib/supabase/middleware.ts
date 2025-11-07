@@ -49,11 +49,13 @@ export async function updateSession(request: NextRequest, response?: NextRespons
   const isRootPath = request.nextUrl.pathname === "/" || 
                      request.nextUrl.pathname === "/en" || 
                      request.nextUrl.pathname === "/es";
+  const isPublicRoute = request.nextUrl.pathname.match(/^\/(en|es)?\/?apartment/);
 
   if (
     !isRootPath &&
     !user &&
-    !isAuthRoute
+    !isAuthRoute &&
+    !isPublicRoute
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();

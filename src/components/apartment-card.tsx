@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Apartment } from "@/lib/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,7 +19,7 @@ import {
   MapPin,
   Calendar
 } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 interface ApartmentCardProps {
   apartment: Apartment
@@ -33,6 +34,7 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1, priori
   const [isGalleryModalOpen, setIsGalleryModalOpen] = React.useState(false)
   const characteristics = apartment.characteristics || {}
   const t = useTranslations('listing')
+  const locale = useLocale()
   
   const calculateTotalPrice = () => {
     if (!checkIn || !checkOut) return null
@@ -92,7 +94,11 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1, priori
       </CardHeader>
       
       <CardContent className="p-4">
-        <CardTitle className="text-lg mb-2">{apartment.title}</CardTitle>
+        <Link href={`/${locale}/apartment/${apartment.id}`}>
+          <CardTitle className="text-lg mb-2 hover:text-primary transition-colors cursor-pointer">
+            {apartment.title}
+          </CardTitle>
+        </Link>
         
         <div className="flex items-center text-sm text-gray-600 mb-3">
           <MapPin className="h-4 w-4 mr-1" />

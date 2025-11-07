@@ -3,6 +3,16 @@ jest.mock('next-intl/routing', () => ({
   defineRouting: jest.fn((config) => config)
 }))
 
+// Mock next-intl/navigation
+jest.mock('next-intl/navigation', () => ({
+  createNavigation: jest.fn(() => ({
+    Link: jest.fn(),
+    redirect: jest.fn(),
+    usePathname: jest.fn(),
+    useRouter: jest.fn()
+  }))
+}))
+
 import { routing } from '@/i18n/routing'
 
 // const mockDefineRouting = defineRouting as jest.MockedFunction<typeof defineRouting>
@@ -27,22 +37,22 @@ describe('i18n/routing', () => {
     expect(routing.defaultLocale).toBe('es')
   })
 
-  it('should set locale prefix to as-needed', () => {
-    expect(routing.localePrefix).toBe('as-needed')
+  it('should set locale prefix to always', () => {
+    expect(routing.localePrefix).toBe('always')
   })
 
   it('should have expected routing configuration values', () => {
     // Test the actual configuration values rather than internal implementation
     expect(routing).toHaveProperty('locales', ['en', 'es'])
     expect(routing).toHaveProperty('defaultLocale', 'es')
-    expect(routing).toHaveProperty('localePrefix', 'as-needed')
+    expect(routing).toHaveProperty('localePrefix', 'always')
   })
 
   it('should have proper routing configuration structure', () => {
     expect(routing).toEqual({
       locales: ['en', 'es'],
       defaultLocale: 'es',
-      localePrefix: 'as-needed'
+      localePrefix: 'always'
     })
   })
 

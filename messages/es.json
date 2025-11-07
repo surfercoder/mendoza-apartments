@@ -44,6 +44,8 @@
       "description": "Descripción",
       "descriptionPlaceholder": "Describe el departamento, su ubicación y comodidades...",
       "address": "Dirección",
+      "googleMapsUrl": "URL de Google Maps",
+      "googleMapsUrlDescription": "Enlace compartido de Google Maps (ej: https://maps.app.goo.gl/...)",
       "pricePerNight": "Precio por noche ($)",
       "maxGuests": "Máx. huéspedes",
       "activeListing": "Publicación activa",
