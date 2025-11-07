@@ -132,6 +132,7 @@ const mockApartment: Apartment = {
   max_guests: 4,
   is_active: true,
   images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+  principal_image_index: 0,
   contact_email: 'test@example.com',
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
@@ -528,5 +529,45 @@ describe('ApartmentCard', () => {
     })
 
     expect(screen.queryByTestId('image-gallery-modal')).not.toBeInTheDocument()
+  })
+
+  it('displays principal image based on principal_image_index', () => {
+    const apartmentWithPrincipalImage = {
+      ...mockApartment,
+      images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg', 'https://example.com/image3.jpg'],
+      principal_image_index: 1
+    }
+
+    render(<ApartmentCard apartment={apartmentWithPrincipalImage} />)
+
+    const image = screen.getByAltText('Luxury Downtown Apartment')
+    expect(image).toHaveAttribute('src', 'https://example.com/image2.jpg')
+  })
+
+  it('defaults to first image when principal_image_index is not set', () => {
+    const apartmentWithoutPrincipalIndex = {
+      ...mockApartment,
+      images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+      principal_image_index: undefined as any
+    }
+
+    render(<ApartmentCard apartment={apartmentWithoutPrincipalIndex} />)
+
+    const image = screen.getByAltText('Luxury Downtown Apartment')
+    expect(image).toHaveAttribute('src', 'https://example.com/image1.jpg')
+  })
+
+  it('handles out of bounds principal_image_index gracefully', () => {
+    const apartmentWithInvalidIndex = {
+      ...mockApartment,
+      images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+      principal_image_index: 5
+    }
+
+    render(<ApartmentCard apartment={apartmentWithInvalidIndex} />)
+
+    const image = screen.getByAltText('Luxury Downtown Apartment')
+    // Should default to last image when index is out of bounds
+    expect(image).toHaveAttribute('src', 'https://example.com/image2.jpg')
   })
 })

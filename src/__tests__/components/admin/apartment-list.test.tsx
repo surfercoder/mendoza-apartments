@@ -200,6 +200,7 @@ describe('ApartmentList', () => {
     whatsapp_number: '123-456-7890',
     is_active: true,
     images: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
+    principal_image_index: 0,
     characteristics: {
       bedrooms: 2,
       bathrooms: 1,

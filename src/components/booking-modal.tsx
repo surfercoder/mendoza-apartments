@@ -27,6 +27,7 @@ import { Loader2, Calendar, Users, DollarSign, MapPin, MessageCircle } from "luc
 import { format } from "date-fns"
 import { useTranslations } from "next-intl"
 import { openWhatsAppChat } from "@/lib/whatsapp"
+import { toast } from "sonner"
 
 // We'll create the schema inside the component to access translations
 const createBookingSchema = (tValidation: (key: string) => string) => z.object({
@@ -90,7 +91,7 @@ export function BookingModal({
 
   const onSubmit = async (data: BookingFormData) => {
     if (!checkIn || !checkOut) {
-      alert(tSearch('selectDatesAlert'))
+      toast.error(tSearch('selectDatesAlert'))
       return
     }
 
@@ -134,11 +135,11 @@ export function BookingModal({
           form.reset()
         }, 3000) // Give more time for WhatsApp to open
       } else {
-        alert(result.error || tSearch('bookingFailed'))
+        toast.error(result.error || tSearch('bookingFailed'))
       }
     } catch (error) {
       console.error("Error submitting booking:", error)
-      alert(tSearch('bookingFailed'))
+      toast.error(tSearch('bookingFailed'))
     } finally {
       setIsLoading(false)
     }

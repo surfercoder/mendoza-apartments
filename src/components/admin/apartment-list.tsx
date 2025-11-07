@@ -117,15 +117,25 @@ export function ApartmentList({
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {apartments.map((apartment) => (
+        {apartments.map((apartment, index) => {
+          // Get the principal image index, defaulting to 0 if not set or out of bounds
+          const principalImageIndex = apartment.principal_image_index ?? 0
+          const validPrincipalIndex = apartment.images && apartment.images.length > 0 
+            ? Math.min(Math.max(0, principalImageIndex), apartment.images.length - 1)
+            : 0
+          const principalImage = apartment.images?.[validPrincipalIndex]
+
+          return (
           <Card key={apartment.id} className="overflow-hidden">
             <CardHeader className="p-4 pb-0">
               <div className="relative h-48 w-full overflow-hidden rounded-lg">
-                {apartment.images && apartment.images.length > 0 ? (
+                {principalImage ? (
                   <Image
-                    src={apartment.images[0]}
+                    src={principalImage}
                     alt={apartment.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index === 0}
                     className="object-cover"
                   />
                 ) : (
@@ -251,7 +261,8 @@ export function ApartmentList({
               </div>
             </CardContent>
           </Card>
-        ))}
+          )
+        })}
       </div>
 
       {/* Edit Dialog */}

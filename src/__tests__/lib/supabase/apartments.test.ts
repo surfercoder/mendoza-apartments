@@ -56,6 +56,7 @@ describe('lib/supabase/apartments', () => {
     images: ['image1.jpg'],
     contact_email: 'test@example.com',
     is_active: true,
+    principal_image_index: 0,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z'
   })
@@ -320,7 +321,8 @@ describe('lib/supabase/apartments', () => {
         address: '456 New St',
         images: [],
         contact_email: 'new@example.com',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       }
 
       const result = await createApartment(newApartment)
@@ -347,7 +349,8 @@ describe('lib/supabase/apartments', () => {
         address: '456 New St',
         images: [],
         contact_email: 'new@example.com',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       }
 
       const result = await createApartment(newApartment)
@@ -672,7 +675,8 @@ describe('lib/supabase/apartments', () => {
         address: 'Test',
         images: [],
         contact_email: 'test@example.com',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       })
 
       expect(result).toBeNull()

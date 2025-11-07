@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form"
 import { createApartment, updateApartment } from "@/lib/supabase/apartments"
 import { Apartment } from "@/lib/types"
-import { Loader2, X } from "lucide-react"
+import { Loader2, X, Star } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { uploadApartmentImage } from "@/lib/supabase/storage"
@@ -83,6 +83,7 @@ type ApartmentFormData = {
   whatsapp_number?: string;
   is_active: boolean;
   images?: string[];
+  principal_image_index?: number;
   characteristics: {
     bedrooms?: number;
     bathrooms?: number;
@@ -129,6 +130,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
   const apartmentSchema = createApartmentSchema(tValidation)
   const [isLoading, setIsLoading] = React.useState(false)
   const [imageUrls, setImageUrls] = React.useState<string[]>(apartment?.images || [])
+  const [principalImageIndex, setPrincipalImageIndex] = React.useState<number>(apartment?.principal_image_index ?? 0)
   const [isUploading, setIsUploading] = React.useState(false)
   const [uploadError, setUploadError] = React.useState<string | null>(null)
 
@@ -145,6 +147,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
       whatsapp_number: apartment?.whatsapp_number || "+5492616530387",
       is_active: apartment?.is_active ?? true,
       images: apartment?.images || [],
+      principal_image_index: apartment?.principal_image_index ?? 0,
       characteristics: {
         bedrooms: apartment?.characteristics?.bedrooms || 0,
         bathrooms: apartment?.characteristics?.bathrooms || 0,
@@ -184,6 +187,23 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
     const updatedImages = imageUrls.filter((_, i) => i !== index)
     setImageUrls(updatedImages)
     form.setValue("images", updatedImages)
+    
+    // Adjust principal image index if needed
+    if (principalImageIndex === index) {
+      // If removing the principal image, set to first image
+      setPrincipalImageIndex(0)
+      form.setValue("principal_image_index", 0)
+    } else if (principalImageIndex > index) {
+      // If removing an image before the principal, adjust the index
+      const newIndex = principalImageIndex - 1
+      setPrincipalImageIndex(newIndex)
+      form.setValue("principal_image_index", newIndex)
+    }
+  }
+
+  const setPrincipalImage = (index: number) => {
+    setPrincipalImageIndex(index)
+    form.setValue("principal_image_index", index)
   }
 
   const handleFilesSelected = async (files: FileList | null) => {
@@ -216,6 +236,7 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
       const apartmentData = {
         ...data,
         images: imageUrls,
+        principal_image_index: principalImageIndex,
       }
 
       if (apartment) {
@@ -529,12 +550,33 @@ export function ApartmentForm({ apartment, onSuccess, onCancel }: ApartmentFormP
               {imageUrls.length > 0 && (
                 <div className="space-y-2">
                   <div className="text-sm font-medium">{t('imageUrls')}</div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Click the star to set the principal image for the apartment card
+                  </div>
                   <div className="grid grid-cols-3 gap-2">
                     {imageUrls.map((url, index) => (
-                      <div key={index} className="relative p-2 border rounded">
+                      <div key={index} className={`relative p-2 border rounded transition-all ${
+                        principalImageIndex === index ? 'ring-2 ring-primary border-primary' : ''
+                      }`}>
                         <div className="relative h-20 w-full overflow-hidden rounded">
-                          <Image src={url} alt={`image-${index}`} fill className="object-cover" />
+                          <Image src={url} alt={`image-${index}`} fill sizes="120px" className="object-cover" />
                         </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className={`absolute top-1 left-1 h-6 w-6 p-0 ${
+                            principalImageIndex === index 
+                              ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                              : 'bg-white/80 hover:bg-white/90'
+                          }`}
+                          onClick={() => setPrincipalImage(index)}
+                          title="Set as principal image"
+                        >
+                          <Star className={`h-3 w-3 ${
+                            principalImageIndex === index ? 'fill-current' : ''
+                          }`} />
+                        </Button>
                         <Button
                           type="button"
                           variant="ghost"

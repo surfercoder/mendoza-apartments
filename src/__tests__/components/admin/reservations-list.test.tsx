@@ -65,6 +65,9 @@ const mockGetAllBookings = getAllBookings as jest.MockedFunction<typeof getAllBo
 const mockUpdateBookingStatus = updateBookingStatus as jest.MockedFunction<typeof updateBookingStatus>
 const mockOpenWhatsAppChat = openWhatsAppChat as jest.MockedFunction<typeof openWhatsAppChat>
 
+// Mock fetch
+global.fetch = jest.fn()
+
 // Mock UI components
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,
@@ -195,6 +198,8 @@ const mockReservations = [
 ]
 
 describe('ReservationsList', () => {
+  const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
+
   beforeEach(() => {
     jest.clearAllMocks()
     jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -205,7 +210,7 @@ describe('ReservationsList', () => {
   })
 
   it('shows loading state initially', () => {
-    mockGetAllBookings.mockImplementation(() => new Promise(() => {}))
+    mockFetch.mockImplementation(() => new Promise(() => {}))
 
     render(<ReservationsList />)
 
@@ -214,7 +219,10 @@ describe('ReservationsList', () => {
   })
 
   it('loads and displays reservations', async () => {
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -228,7 +236,10 @@ describe('ReservationsList', () => {
   })
 
   it('handles loading error', async () => {
-    mockGetAllBookings.mockRejectedValue(new Error('Failed to load'))
+    mockFetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({})
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -238,7 +249,10 @@ describe('ReservationsList', () => {
   })
 
   it('displays correct status badges', async () => {
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -249,7 +263,10 @@ describe('ReservationsList', () => {
   })
 
   it('shows empty state when no reservations', async () => {
-    mockGetAllBookings.mockResolvedValue([])
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: [] })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -260,7 +277,10 @@ describe('ReservationsList', () => {
 
   it('opens WhatsApp chat when WhatsApp button is clicked', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -287,7 +307,10 @@ describe('ReservationsList', () => {
 
   it('opens reservation details dialog', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -310,7 +333,10 @@ describe('ReservationsList', () => {
 
   it('updates booking status', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
     mockUpdateBookingStatus.mockResolvedValue({
       ...mockReservations[0],
       status: 'confirmed'
@@ -348,7 +374,13 @@ describe('ReservationsList', () => {
 
   it('handles status update error', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({})
+    } as Response)
     mockUpdateBookingStatus.mockRejectedValue(new Error('Update failed'))
 
     render(<ReservationsList />)
@@ -386,7 +418,10 @@ describe('ReservationsList', () => {
   })
 
   it('displays guest phone when available', async () => {
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -396,7 +431,10 @@ describe('ReservationsList', () => {
   })
 
   it('does not display guest phone when not available', async () => {
-    mockGetAllBookings.mockResolvedValue([mockReservations[1]]) // Jane Smith has no phone
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: [mockReservations[1]] })
+    } as Response) // Jane Smith has no phone
 
     render(<ReservationsList />)
 
@@ -408,7 +446,10 @@ describe('ReservationsList', () => {
 
   it('displays guest notes when available in detail view', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -430,7 +471,10 @@ describe('ReservationsList', () => {
 
   it('does not display guest notes section when not available', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue([mockReservations[1]]) // Jane Smith has no notes
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: [mockReservations[1]] })
+    } as Response) // Jane Smith has no notes
 
     render(<ReservationsList />)
 
@@ -451,7 +495,10 @@ describe('ReservationsList', () => {
 
   it('closes dialog when close button is clicked', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -482,7 +529,10 @@ describe('ReservationsList', () => {
 
   it('opens WhatsApp from detail dialog', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -510,7 +560,10 @@ describe('ReservationsList', () => {
   })
 
   it('renders table headers correctly', async () => {
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
 
     render(<ReservationsList />)
 
@@ -527,7 +580,10 @@ describe('ReservationsList', () => {
 
   it('disables select when updating status', async () => {
     const user = userEvent.setup()
-    mockGetAllBookings.mockResolvedValue(mockReservations)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ bookings: mockReservations })
+    } as Response)
     mockUpdateBookingStatus.mockImplementation(() => new Promise(() => {})) // Never resolves
 
     render(<ReservationsList />)

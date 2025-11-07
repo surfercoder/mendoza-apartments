@@ -25,9 +25,10 @@ interface ApartmentCardProps {
   checkIn?: Date
   checkOut?: Date
   guests?: number
+  priority?: boolean
 }
 
-export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: ApartmentCardProps) {
+export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1, priority = false }: ApartmentCardProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false)
   const [isGalleryModalOpen, setIsGalleryModalOpen] = React.useState(false)
   const characteristics = apartment.characteristics || {}
@@ -47,6 +48,13 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
     console.log('Booking submitted successfully!')
   }
 
+  // Get the principal image index, defaulting to 0 if not set or out of bounds
+  const principalImageIndex = apartment.principal_image_index ?? 0
+  const validPrincipalIndex = apartment.images && apartment.images.length > 0 
+    ? Math.min(Math.max(0, principalImageIndex), apartment.images.length - 1)
+    : 0
+  const principalImage = apartment.images?.[validPrincipalIndex]
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <CardHeader className="p-4 pb-0">
@@ -54,12 +62,14 @@ export function ApartmentCard({ apartment, checkIn, checkOut, guests = 1 }: Apar
           className="relative h-48 w-full cursor-pointer group overflow-hidden rounded-lg"
           onClick={() => apartment.images && apartment.images.length > 0 && setIsGalleryModalOpen(true)}
         >
-          {apartment.images && apartment.images.length > 0 ? (
+          {principalImage ? (
             <>
               <Image
-                src={apartment.images[0]}
+                src={principalImage}
                 alt={apartment.title}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                priority={priority}
                 className="object-cover transition-transform group-hover:scale-105"
               />
               {apartment.images.length > 1 && (

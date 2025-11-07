@@ -58,6 +58,7 @@ describe('/api/bookings', () => {
     max_guests: 4,
     address: 'Test Location',
     images: [],
+    principal_image_index: 0,
     contact_email: 'owner@example.com',
     contact_phone: '+1234567890',
     whatsapp_number: '+1234567890',

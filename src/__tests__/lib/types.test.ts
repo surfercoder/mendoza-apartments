@@ -36,6 +36,7 @@ describe('lib/types', () => {
         contact_phone: '+1234567890',
         whatsapp_number: '+1234567890',
         is_active: true,
+        principal_image_index: 0,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z'
       }
@@ -61,6 +62,7 @@ describe('lib/types', () => {
         images: [],
         contact_email: 'test@example.com',
         is_active: true,
+        principal_image_index: 0,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z'
       }
@@ -81,6 +83,7 @@ describe('lib/types', () => {
         contact_email: 'test@example.com',
         // contact_phone and whatsapp_number are optional
         is_active: true,
+        principal_image_index: 0,
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z'
       }
@@ -235,7 +238,8 @@ describe('lib/types', () => {
         contact_email: 'owner@example.com',
         contact_phone: '+1234567890',
         whatsapp_number: '+1234567890',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       }
 
       expect(formData.title).toBe('New Apartment')
@@ -257,7 +261,8 @@ describe('lib/types', () => {
         address: '456 New St',
         images: [],
         contact_email: 'owner@example.com',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       }
 
       expect(formData.characteristics.wifi).toBe(true)
@@ -274,7 +279,8 @@ describe('lib/types', () => {
         address: '456 New St',
         images: [],
         contact_email: 'owner@example.com',
-        is_active: true
+        is_active: true,
+        principal_image_index: 0
       }
 
       expect(formData.contact_phone).toBeUndefined()

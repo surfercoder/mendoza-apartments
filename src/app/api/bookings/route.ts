@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBooking } from '@/lib/supabase/bookings';
+import { createBooking, getAllBookings, updateBookingStatus } from '@/lib/supabase/bookings';
 import { getApartmentById } from '@/lib/supabase/apartments';
 import { sendBookingEmails } from '@/lib/email';
+
+export async function GET() {
+  try {
+    const bookings = await getAllBookings();
+    return NextResponse.json({ bookings });
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch bookings' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,6 +88,44 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in booking API:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: 'Missing required fields: id and status' },
+        { status: 400 }
+      );
+    }
+
+    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid status value' },
+        { status: 400 }
+      );
+    }
+
+    const updatedBooking = await updateBookingStatus(id, status);
+
+    if (!updatedBooking) {
+      return NextResponse.json(
+        { error: 'Failed to update booking status' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ booking: updatedBooking });
+  } catch (error) {
+    console.error('Error updating booking:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

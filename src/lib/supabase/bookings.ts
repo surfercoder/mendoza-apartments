@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 import { Booking } from '@/lib/types';
 
 export async function createBooking(booking: Omit<Booking, 'id' | 'created_at' | 'updated_at'>): Promise<Booking | null> {
   try {
     console.log('🔄 Creating booking:', booking);
 
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from('bookings')
       .insert([booking])
@@ -36,7 +36,7 @@ export async function createBooking(booking: Omit<Booking, 'id' | 'created_at' |
 
 export async function getAllBookings(): Promise<Booking[]> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from('bookings')
       .select(`
@@ -64,7 +64,7 @@ export async function getAllBookings(): Promise<Booking[]> {
 
 export async function getBookingsByApartment(apartmentId: string): Promise<Booking[]> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from('bookings')
       .select('*')
@@ -85,7 +85,7 @@ export async function getBookingsByApartment(apartmentId: string): Promise<Booki
 
 export async function updateBookingStatus(bookingId: string, status: 'pending' | 'confirmed' | 'cancelled'): Promise<Booking | null> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from('bookings')
       .update({ status })
@@ -107,7 +107,7 @@ export async function updateBookingStatus(bookingId: string, status: 'pending' |
 
 export async function deleteBooking(bookingId: string): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase
       .from('bookings')
       .delete()

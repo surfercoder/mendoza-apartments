@@ -185,6 +185,7 @@ jest.mock('@hookform/resolvers/zod', () => ({
 jest.mock('lucide-react', () => ({
   Loader2: () => <div data-testid="loader-icon" />,
   X: () => <div data-testid="x-icon" />,
+  Star: () => <div data-testid="star-icon" />,
 }))
 
 const mockCreateApartment = createApartment as jest.MockedFunction<typeof createApartment>
@@ -210,6 +211,7 @@ describe('ApartmentForm', () => {
         whatsapp_number: '',
         is_active: true,
         images: [],
+        principal_image_index: 0,
         characteristics: {
           bedrooms: 1,
           bathrooms: 1,
@@ -248,6 +250,7 @@ describe('ApartmentForm', () => {
     whatsapp_number: '123-456-7890',
     is_active: true,
     images: ['https://example.com/image1.jpg'],
+    principal_image_index: 0,
     characteristics: {
       bedrooms: 2,
       bathrooms: 1,
@@ -335,6 +338,7 @@ describe('ApartmentForm', () => {
         whatsapp_number: '',
         is_active: true,
         images: [],
+        principal_image_index: 0,
         characteristics: {
           bedrooms: 1,
           bathrooms: 1,

@@ -2,12 +2,12 @@ import { createBooking, getAllBookings, getBookingsByApartment, updateBookingSta
 import { Booking } from '@/lib/types'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-// Mock the client module
-jest.mock("@/lib/supabase/client", () => ({
+// Mock the server module
+jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn()
 }))
 
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>
 
@@ -97,7 +97,7 @@ describe('lib/supabase/bookings', () => {
   describe('createBooking', () => {
     it('should create booking successfully', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const newBooking = {
         apartment_id: 'apt-123',
@@ -130,7 +130,7 @@ describe('lib/supabase/bookings', () => {
           code: '23505'
         }
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const newBooking = {
         apartment_id: 'apt-123',
@@ -159,7 +159,7 @@ describe('lib/supabase/bookings', () => {
       mockClient.from.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const newBooking = {
         apartment_id: 'apt-123',
@@ -183,7 +183,7 @@ describe('lib/supabase/bookings', () => {
       mockClient.from.mockImplementation(() => {
         throw 'String error'
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const newBooking = {
         apartment_id: 'apt-123',
@@ -208,7 +208,7 @@ describe('lib/supabase/bookings', () => {
   describe('getAllBookings', () => {
     it('should return all bookings with apartment details', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await getAllBookings()
 
@@ -232,7 +232,7 @@ describe('lib/supabase/bookings', () => {
         data: null,
         error: { message: 'Query failed' }
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await getAllBookings()
 
@@ -245,7 +245,7 @@ describe('lib/supabase/bookings', () => {
       mockClient.from.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await getAllBookings()
 
@@ -257,7 +257,7 @@ describe('lib/supabase/bookings', () => {
   describe('getBookingsByApartment', () => {
     it('should return bookings for specific apartment', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await getBookingsByApartment('apt-123')
 
@@ -268,7 +268,7 @@ describe('lib/supabase/bookings', () => {
 
     it('should order bookings by check-in date', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       await getBookingsByApartment('apt-123')
 
@@ -281,7 +281,7 @@ describe('lib/supabase/bookings', () => {
         data: null,
         error: { message: 'Query failed' }
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await getBookingsByApartment('apt-123')
 
@@ -293,7 +293,7 @@ describe('lib/supabase/bookings', () => {
   describe('updateBookingStatus', () => {
     it('should update booking status successfully', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await updateBookingStatus('booking-123', 'confirmed')
 
@@ -304,7 +304,7 @@ describe('lib/supabase/bookings', () => {
 
     it('should handle all valid status values', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const statuses: Array<'pending' | 'confirmed' | 'cancelled'> = ['pending', 'confirmed', 'cancelled']
 
@@ -320,7 +320,7 @@ describe('lib/supabase/bookings', () => {
         data: null,
         error: { message: 'Update failed' }
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await updateBookingStatus('booking-123', 'confirmed')
 
@@ -332,7 +332,7 @@ describe('lib/supabase/bookings', () => {
   describe('deleteBooking', () => {
     it('should delete booking successfully', async () => {
       const mockClient = createMockSupabaseClient()
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await deleteBooking('booking-123')
 
@@ -345,7 +345,7 @@ describe('lib/supabase/bookings', () => {
       mockClient.from().delete().eq.mockResolvedValue({
         error: { message: 'Delete failed' }
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await deleteBooking('booking-123')
 
@@ -358,7 +358,7 @@ describe('lib/supabase/bookings', () => {
       mockClient.from.mockImplementation(() => {
         throw new Error('Unexpected error')
       })
-      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+      mockCreateClient.mockResolvedValue(mockClient as unknown as SupabaseClient)
 
       const result = await deleteBooking('booking-123')
 

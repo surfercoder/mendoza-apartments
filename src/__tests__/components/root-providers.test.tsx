@@ -1,6 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import { RootProviders } from '@/components/root-providers'
 
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+})
+
 // Mock next-themes
 jest.mock('next-themes', () => ({
   ThemeProvider: ({ children, attribute, defaultTheme, enableSystem, disableTransitionOnChange, ...props }: any) => (
@@ -14,7 +29,11 @@ jest.mock('next-themes', () => ({
     >
       {children}
     </div>
-  )
+  ),
+  useTheme: () => ({
+    theme: 'system',
+    setTheme: jest.fn(),
+  })
 }))
 
 // Mock next-intl

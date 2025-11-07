@@ -142,13 +142,14 @@ export default function HomePage() {
             </div>
           ) : apartments.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {apartments.map((apartment) => (
+              {apartments.map((apartment, index) => (
                 <ApartmentCard
                   key={apartment.id}
                   apartment={apartment}
                   checkIn={currentFilters.checkIn}
                   checkOut={currentFilters.checkOut}
                   guests={currentFilters.guests}
+                  priority={index < 3}
                 />
               ))}
             </div>

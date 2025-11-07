@@ -38,6 +38,7 @@ export interface Apartment {
   max_guests: number;
   address: string;
   images: string[];
+  principal_image_index: number;
   contact_email: string;
   contact_phone?: string;
   whatsapp_number?: string;
@@ -118,6 +119,7 @@ export interface ApartmentFormData {
   max_guests: number;
   address: string;
   images: string[];
+  principal_image_index: number;
   contact_email: string;
   contact_phone?: string;
   whatsapp_number?: string;

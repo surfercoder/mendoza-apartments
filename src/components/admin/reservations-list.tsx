@@ -42,7 +42,6 @@ import {
   Eye
 } from "lucide-react"
 import { Booking } from "@/lib/types"
-import { getAllBookings, updateBookingStatus } from "@/lib/supabase/bookings"
 import { openWhatsAppChat } from "@/lib/whatsapp"
 
 interface ReservationWithApartment extends Booking {
@@ -74,8 +73,12 @@ export function ReservationsList() {
   const loadReservations = async () => {
     try {
       setLoading(true)
-      const data = await getAllBookings()
-      setReservations(data as ReservationWithApartment[])
+      const response = await fetch('/api/bookings')
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookings')
+      }
+      const { bookings } = await response.json()
+      setReservations(bookings as ReservationWithApartment[])
     } catch (error) {
       console.error('Error loading reservations:', error)
     } finally {
@@ -86,9 +89,21 @@ export function ReservationsList() {
   const handleStatusChange = async (reservationId: string, newStatus: 'pending' | 'confirmed' | 'cancelled') => {
     try {
       setUpdating(reservationId)
-      const updated = await updateBookingStatus(reservationId, newStatus)
+      const response = await fetch('/api/bookings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: reservationId, status: newStatus }),
+      })
       
-      if (updated) {
+      if (!response.ok) {
+        throw new Error('Failed to update booking status')
+      }
+      
+      const { booking } = await response.json()
+      
+      if (booking) {
         setReservations(prev => 
           prev.map(res => 
             res.id === reservationId 
@@ -133,6 +148,7 @@ export function ReservationsList() {
       is_active: true, // Not needed for WhatsApp
       created_at: '', // Not needed for WhatsApp
       updated_at: '', // Not needed for WhatsApp
+      principal_image_index: 0, // Not needed for WhatsApp
     }
     openWhatsAppChat(apartment, reservation)
   }

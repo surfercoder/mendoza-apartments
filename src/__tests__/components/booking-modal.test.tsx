@@ -198,6 +198,7 @@ const mockApartment: Apartment = {
   max_guests: 4,
   is_active: true,
   images: ['https://example.com/image1.jpg'],
+  principal_image_index: 0,
   contact_email: 'test@example.com',
   contact_phone: '+5492610000000',
   whatsapp_number: '+5492610000000',
