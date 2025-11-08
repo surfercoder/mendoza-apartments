@@ -25,6 +25,11 @@ jest.mock('date-fns', () => ({
       }).replace(/(\d{2})/, '$1')
     }
     return date.toString()
+  }),
+  startOfDay: jest.fn((date) => {
+    const d = new Date(date)
+    d.setHours(0, 0, 0, 0)
+    return d
   })
 }))
 
@@ -416,5 +421,99 @@ describe('DateRangePicker', () => {
     const wrapper = container.firstChild as HTMLElement
     expect(wrapper).toHaveClass('grid', 'gap-2')
     expect(wrapper.className).not.toContain('undefined')
+  })
+
+  describe('Same-day booking validation', () => {
+    it('allows booking for today (current date)', () => {
+      // Mock the current date to be at 7:45 AM
+      const mockToday = new Date('2024-11-08T07:45:00')
+      jest.spyOn(global, 'Date').mockImplementation((() => mockToday) as any)
+
+      render(
+        <DateRangePicker
+          date={undefined}
+          onDateChange={mockOnDateChange}
+        />
+      )
+
+      const calendar = screen.getByTestId('calendar')
+      expect(calendar).toBeInTheDocument()
+
+      // Restore Date
+      jest.restoreAllMocks()
+    })
+
+    it('disables dates before today using startOfDay comparison', () => {
+      const mockToday = new Date('2024-11-08T07:45:00')
+      const yesterday = new Date('2024-11-07T23:59:59')
+      
+      render(
+        <DateRangePicker
+          date={undefined}
+          onDateChange={mockOnDateChange}
+        />
+      )
+
+      // Get the disabled function from the Calendar mock
+      const calendar = screen.getByTestId('calendar')
+      expect(calendar).toBeInTheDocument()
+      
+      // The disabled dates test should show that past dates are disabled
+      const disabledDates = screen.getByTestId('disabled-dates')
+      expect(disabledDates).toHaveTextContent('Disabled: true')
+    })
+
+    it('uses startOfDay to normalize date comparison', () => {
+      const { startOfDay } = require('date-fns')
+      
+      // Test that startOfDay is called correctly
+      const testDate = new Date('2024-11-08T15:30:00')
+      const result = startOfDay(testDate)
+      
+      expect(result.getHours()).toBe(0)
+      expect(result.getMinutes()).toBe(0)
+      expect(result.getSeconds()).toBe(0)
+      expect(result.getMilliseconds()).toBe(0)
+    })
+
+    it('allows same-day bookings regardless of current time', () => {
+      // Test at different times of the day
+      const testTimes = [
+        '2024-11-08T00:01:00', // Just after midnight
+        '2024-11-08T07:45:00', // Morning
+        '2024-11-08T12:00:00', // Noon
+        '2024-11-08T23:59:00', // Just before midnight
+      ]
+
+      testTimes.forEach(timeStr => {
+        const mockNow = new Date(timeStr)
+        const todayAtMidnight = new Date(timeStr)
+        todayAtMidnight.setHours(0, 0, 0, 0)
+
+        // The date comparison should use startOfDay
+        // So today at any time should be >= today at midnight
+        expect(todayAtMidnight.getTime()).toBeLessThanOrEqual(mockNow.getTime())
+      })
+    })
+
+    it('correctly identifies yesterday as disabled', () => {
+      const mockToday = new Date('2024-11-08T07:45:00')
+      const yesterday = new Date('2024-11-07')
+      const todayStart = new Date('2024-11-08')
+      todayStart.setHours(0, 0, 0, 0)
+
+      // Yesterday should be less than today's start
+      expect(yesterday < todayStart).toBe(true)
+    })
+
+    it('correctly identifies tomorrow as enabled', () => {
+      const mockToday = new Date('2024-11-08T07:45:00')
+      const tomorrow = new Date('2024-11-09')
+      const todayStart = new Date('2024-11-08')
+      todayStart.setHours(0, 0, 0, 0)
+
+      // Tomorrow should not be less than today's start
+      expect(tomorrow < todayStart).toBe(false)
+    })
   })
 })

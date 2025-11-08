@@ -10,8 +10,8 @@ if (typeof global !== 'undefined') {
 }
 
 import { NextRequest } from 'next/server';
-import { POST } from '@/app/api/bookings/route';
-import { createBooking } from '@/lib/supabase/bookings';
+import { GET, POST, PATCH } from '@/app/api/bookings/route';
+import { createBooking, getAllBookings, updateBookingStatus } from '@/lib/supabase/bookings';
 import { getApartmentById } from '@/lib/supabase/apartments';
 import { sendBookingEmails } from '@/lib/email';
 
@@ -20,6 +20,8 @@ jest.mock('@/lib/supabase/apartments');
 jest.mock('@/lib/email');
 
 const mockCreateBooking = createBooking as jest.MockedFunction<typeof createBooking>;
+const mockGetAllBookings = getAllBookings as jest.MockedFunction<typeof getAllBookings>;
+const mockUpdateBookingStatus = updateBookingStatus as jest.MockedFunction<typeof updateBookingStatus>;
 const mockGetApartmentById = getApartmentById as jest.MockedFunction<typeof getApartmentById>;
 const mockSendBookingEmails = sendBookingEmails as jest.MockedFunction<typeof sendBookingEmails>;
 
@@ -69,6 +71,37 @@ describe('/api/bookings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('GET', () => {
+    it('returns all bookings successfully', async () => {
+      const mockBookings = [mockBooking];
+      mockGetAllBookings.mockResolvedValue(mockBookings);
+
+      const response = await GET();
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.bookings).toEqual(mockBookings);
+      expect(mockGetAllBookings).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles errors when fetching bookings', async () => {
+      mockGetAllBookings.mockRejectedValue(new Error('Database error'));
+
+      const response = await GET();
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe('Failed to fetch bookings');
+      expect(console.error).toHaveBeenCalledWith('Error fetching bookings:', expect.any(Error));
+    });
   });
 
   describe('POST', () => {
@@ -267,6 +300,115 @@ describe('/api/bookings', () => {
 
       expect(response.status).toBe(500);
       expect(data.error).toBe('Internal server error');
+    });
+  });
+
+  describe('PATCH', () => {
+    it('updates booking status successfully', async () => {
+      const updatedBooking = { ...mockBooking, status: 'confirmed' as const };
+      mockUpdateBookingStatus.mockResolvedValue(updatedBooking);
+
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: 'booking-123', status: 'confirmed' })
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.booking).toEqual(updatedBooking);
+      expect(mockUpdateBookingStatus).toHaveBeenCalledWith('booking-123', 'confirmed');
+    });
+
+    it('returns 400 when id is missing', async () => {
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'confirmed' })
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Missing required fields: id and status');
+    });
+
+    it('returns 400 when status is missing', async () => {
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: 'booking-123' })
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Missing required fields: id and status');
+    });
+
+    it('returns 400 for invalid status value', async () => {
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: 'booking-123', status: 'invalid_status' })
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Invalid status value');
+    });
+
+    it('returns 500 when update fails', async () => {
+      mockUpdateBookingStatus.mockResolvedValue(null);
+
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: JSON.stringify({ id: 'booking-123', status: 'confirmed' })
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe('Failed to update booking status');
+    });
+
+    it('handles JSON parsing errors', async () => {
+      const request = new NextRequest('http://localhost/api/bookings', {
+        method: 'PATCH',
+        body: 'invalid-json'
+      });
+
+      const response = await PATCH(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.error).toBe('Internal server error');
+      expect(console.error).toHaveBeenCalledWith('Error updating booking:', expect.objectContaining({
+        message: expect.stringContaining('JSON')
+      }));
+    });
+
+    it('accepts all valid status values', async () => {
+      const validStatuses = ['pending', 'confirmed', 'cancelled'];
+
+      for (const status of validStatuses) {
+        const updatedBooking = { ...mockBooking, status: status as any };
+        mockUpdateBookingStatus.mockResolvedValue(updatedBooking);
+
+        const request = new NextRequest('http://localhost/api/bookings', {
+          method: 'PATCH',
+          body: JSON.stringify({ id: 'booking-123', status })
+        });
+
+        const response = await PATCH(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.booking.status).toBe(status);
+      }
     });
   });
 });

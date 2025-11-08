@@ -111,6 +111,13 @@ export function ReservationsList() {
               : res
           )
         )
+        
+        // Update selectedReservation if it's the one being updated
+        if (selectedReservation?.id === reservationId) {
+          setSelectedReservation(prev => 
+            prev ? { ...prev, status: newStatus } : null
+          )
+        }
       }
     } catch (error) {
       console.error('Error updating status:', error)

@@ -1,4 +1,4 @@
-import { uploadApartmentImage } from '@/lib/supabase/storage'
+import { uploadApartmentImage, deleteApartmentImage } from '@/lib/supabase/storage'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Mock the client module
@@ -283,5 +283,104 @@ describe('lib/supabase/storage', () => {
     await uploadApartmentImage(mockFile)
 
     expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartment-images')
+  })
+
+  describe('deleteApartmentImage', () => {
+    it('should delete image successfully', async () => {
+      const imageUrl = 'https://test.supabase.co/storage/v1/object/public/apartment-images/1234567890-test-image.jpg'
+
+      const mockSupabaseClient = {
+        storage: {
+          from: jest.fn().mockReturnValue({
+            remove: jest.fn().mockResolvedValue({
+              error: null
+            })
+          })
+        }
+      }
+
+      mockCreateClient.mockReturnValue(mockSupabaseClient as unknown as SupabaseClient)
+
+      const result = await deleteApartmentImage(imageUrl)
+
+      expect(mockSupabaseClient.storage.from).toHaveBeenCalledWith('apartment-images')
+      expect(mockSupabaseClient.storage.from().remove).toHaveBeenCalledWith(['1234567890-test-image.jpg'])
+      expect(result).toEqual({ success: true })
+    })
+
+    it('should return error for invalid image URL', async () => {
+      const invalidUrl = 'https://test.supabase.co/storage/v1/object/public/wrong-bucket/file.jpg'
+
+      const result = await deleteApartmentImage(invalidUrl)
+
+      expect(result).toEqual({ error: 'Invalid image URL' })
+    })
+
+    it('should handle delete error from Supabase', async () => {
+      const imageUrl = 'https://test.supabase.co/storage/v1/object/public/apartment-images/1234567890-test-image.jpg'
+      const deleteError = {
+        message: 'File not found'
+      }
+
+      const mockSupabaseClient = {
+        storage: {
+          from: jest.fn().mockReturnValue({
+            remove: jest.fn().mockResolvedValue({
+              error: deleteError
+            })
+          })
+        }
+      }
+
+      mockCreateClient.mockReturnValue(mockSupabaseClient as unknown as SupabaseClient)
+
+      const result = await deleteApartmentImage(imageUrl)
+
+      expect(result).toEqual({ error: 'File not found' })
+    })
+
+    it('should handle unexpected errors during deletion', async () => {
+      const imageUrl = 'https://test.supabase.co/storage/v1/object/public/apartment-images/1234567890-test-image.jpg'
+
+      const mockSupabaseClient = {
+        storage: {
+          from: jest.fn().mockImplementation(() => {
+            throw new Error('Network error')
+          })
+        }
+      }
+
+      mockCreateClient.mockReturnValue(mockSupabaseClient as unknown as SupabaseClient)
+
+      const result = await deleteApartmentImage(imageUrl)
+
+      expect(result).toEqual({ error: 'Network error' })
+    })
+
+    it('should handle non-Error exceptions during deletion', async () => {
+      const imageUrl = 'https://test.supabase.co/storage/v1/object/public/apartment-images/1234567890-test-image.jpg'
+
+      const mockSupabaseClient = {
+        storage: {
+          from: jest.fn().mockImplementation(() => {
+            throw 'String error'
+          })
+        }
+      }
+
+      mockCreateClient.mockReturnValue(mockSupabaseClient as unknown as SupabaseClient)
+
+      const result = await deleteApartmentImage(imageUrl)
+
+      expect(result).toEqual({ error: 'Unknown error' })
+    })
+
+    it('should handle malformed URL during deletion', async () => {
+      const invalidUrl = 'not-a-valid-url'
+
+      const result = await deleteApartmentImage(invalidUrl)
+
+      expect(result).toEqual({ error: expect.any(String) })
+    })
   })
 })

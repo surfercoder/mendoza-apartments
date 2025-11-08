@@ -658,6 +658,163 @@ describe('lib/supabase/apartments', () => {
     })
   })
 
+  describe('Booking status filtering', () => {
+    it('should only exclude apartments with confirmed bookings, not pending ones', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      
+      // Mock the availability check to return no unavailable apartments
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      // Mock the bookings check - should only query for 'confirmed' status
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [{ apartment_id: 'apt-confirmed' }],
+        error: null
+      })
+      
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-06-01'),
+        checkOut: new Date('2023-06-07'),
+        guests: 2
+      }
+
+      await getAvailableApartments(filters)
+
+      // Verify that eq was called with 'confirmed' status only
+      expect(mockClient.from().eq).toHaveBeenCalledWith('status', 'confirmed')
+      // Should NOT be called with 'pending' or array of statuses
+      expect(mockClient.from().eq).not.toHaveBeenCalledWith('status', 'pending')
+    })
+
+    it('should show apartments with pending bookings in same date range', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      
+      // No unavailable apartments
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      // No confirmed bookings (pending bookings should not block)
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-11-07'),
+        checkOut: new Date('2023-11-10'),
+        guests: 1
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      // Should return apartments even if there are pending bookings
+      expect(result).toHaveLength(1)
+      expect(console.log).toHaveBeenCalledWith('📅 Checking availability for dates:', '2023-11-07', 'to', '2023-11-10')
+    })
+
+    it('should hide apartments with confirmed bookings in overlapping date range', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      
+      // No unavailable apartments
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      // One confirmed booking that overlaps
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [{ apartment_id: 'apt-confirmed-booked' }],
+        error: null
+      })
+      
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-11-07'),
+        checkOut: new Date('2023-11-10'),
+        guests: 1
+      }
+
+      await getAvailableApartments(filters)
+
+      // Should exclude the confirmed booking
+      expect(console.log).toHaveBeenCalledWith('🚫 Excluding', 1, 'unavailable apartments')
+      expect(mockClient.from().not).toHaveBeenCalledWith('id', 'in', '(apt-confirmed-booked)')
+    })
+
+    it('should show apartments for future dates even with pending bookings in past', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      
+      // No unavailable apartments
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      // No confirmed bookings in the searched date range
+      mockClient.from().select().eq().or.mockResolvedValueOnce({
+        data: [],
+        error: null
+      })
+      
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-11-24'),
+        checkOut: new Date('2023-11-27'),
+        guests: 1
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      // Should return apartments for future dates
+      expect(result).toHaveLength(1)
+      expect(console.log).toHaveBeenCalledWith('📅 Checking availability for dates:', '2023-11-24', 'to', '2023-11-27')
+    })
+
+    it('should correctly build date overlap query for confirmed bookings', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockClient = createMockSupabaseClient()
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const checkIn = new Date('2023-11-24')
+      const checkOut = new Date('2023-11-27')
+
+      const filters: SearchFilters = {
+        checkIn,
+        checkOut,
+        guests: 1
+      }
+
+      await getAvailableApartments(filters)
+
+      // Verify the date overlap query is constructed correctly
+      expect(mockClient.from().or).toHaveBeenCalledWith('check_in.lte.2023-11-27,check_out.gte.2023-11-24')
+    })
+  })
+
   describe('Error handling edge cases', () => {
     it('should handle createApartment unexpected errors', async () => {
       const mockClient = createMockSupabaseClient()

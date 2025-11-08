@@ -13,7 +13,7 @@ jest.mock('next-intl/navigation', () => ({
   }))
 }))
 
-import { routing } from '@/i18n/routing'
+import { routing, Link, redirect, usePathname, useRouter } from '@/i18n/routing'
 
 // const mockDefineRouting = defineRouting as jest.MockedFunction<typeof defineRouting>
 
@@ -70,6 +70,28 @@ describe('i18n/routing', () => {
 
     unsupportedLocales.forEach(locale => {
       expect(routing.locales).not.toContain(locale)
+    })
+  })
+
+  describe('navigation exports', () => {
+    it('should export Link component', () => {
+      expect(Link).toBeDefined()
+      expect(typeof Link).toBe('function')
+    })
+
+    it('should export redirect function', () => {
+      expect(redirect).toBeDefined()
+      expect(typeof redirect).toBe('function')
+    })
+
+    it('should export usePathname hook', () => {
+      expect(usePathname).toBeDefined()
+      expect(typeof usePathname).toBe('function')
+    })
+
+    it('should export useRouter hook', () => {
+      expect(useRouter).toBeDefined()
+      expect(typeof useRouter).toBe('function')
     })
   })
 })

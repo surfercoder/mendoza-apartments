@@ -145,8 +145,125 @@ describe('ImageGalleryModal', () => {
 
   it('applies correct styling classes', () => {
     render(<ImageGalleryModal {...defaultProps} />)
-    
+
     const mainImage = screen.getByAltText('Test Apartment - Image 1')
     expect(mainImage).toHaveClass('object-contain')
+  })
+
+  it('navigates to previous image when clicking previous button', async () => {
+    const user = userEvent.setup()
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={1} />)
+
+    // Should start at image 2
+    expect(screen.getByAltText('Test Apartment - Image 2')).toBeInTheDocument()
+    expect(screen.getByText('2 / 3')).toBeInTheDocument()
+
+    // Click previous button (ChevronLeft icon button)
+    const prevButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Left')
+    if (prevButton) {
+      await user.click(prevButton)
+    }
+
+    // Should show image 1
+    expect(screen.getByAltText('Test Apartment - Image 1')).toBeInTheDocument()
+    expect(screen.getByText('1 / 3')).toBeInTheDocument()
+  })
+
+  it('navigates to next image when clicking next button', async () => {
+    const user = userEvent.setup()
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={0} />)
+
+    // Should start at image 1
+    expect(screen.getByAltText('Test Apartment - Image 1')).toBeInTheDocument()
+    expect(screen.getByText('1 / 3')).toBeInTheDocument()
+
+    // Click next button (ChevronRight icon button)
+    const nextButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Right')
+    if (nextButton) {
+      await user.click(nextButton)
+    }
+
+    // Should show image 2
+    expect(screen.getByAltText('Test Apartment - Image 2')).toBeInTheDocument()
+    expect(screen.getByText('2 / 3')).toBeInTheDocument()
+  })
+
+  it('wraps to last image when clicking previous on first image', async () => {
+    const user = userEvent.setup()
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={0} />)
+
+    // Should start at image 1
+    expect(screen.getByAltText('Test Apartment - Image 1')).toBeInTheDocument()
+
+    // Click previous button
+    const prevButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Left')
+    if (prevButton) {
+      await user.click(prevButton)
+    }
+
+    // Should wrap to last image (image 3)
+    expect(screen.getByAltText('Test Apartment - Image 3')).toBeInTheDocument()
+    expect(screen.getByText('3 / 3')).toBeInTheDocument()
+  })
+
+  it('wraps to first image when clicking next on last image', async () => {
+    const user = userEvent.setup()
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={2} />)
+
+    // Should start at image 3
+    expect(screen.getByAltText('Test Apartment - Image 3')).toBeInTheDocument()
+
+    // Click next button
+    const nextButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Right')
+    if (nextButton) {
+      await user.click(nextButton)
+    }
+
+    // Should wrap to first image (image 1)
+    expect(screen.getByAltText('Test Apartment - Image 1')).toBeInTheDocument()
+    expect(screen.getByText('1 / 3')).toBeInTheDocument()
+  })
+
+  it('navigates to specific image when clicking thumbnail', async () => {
+    const user = userEvent.setup()
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={0} />)
+
+    // Should start at image 1
+    expect(screen.getByAltText('Test Apartment - Image 1')).toBeInTheDocument()
+
+    // Click on the third thumbnail
+    const thumbnails = screen.getAllByRole('button').filter(btn =>
+      btn.querySelector('img[alt="Thumbnail 3"]')
+    )
+
+    if (thumbnails.length > 0) {
+      await user.click(thumbnails[0])
+
+      // Should show image 3
+      expect(screen.getByAltText('Test Apartment - Image 3')).toBeInTheDocument()
+      expect(screen.getByText('3 / 3')).toBeInTheDocument()
+    }
+  })
+
+  it('calls scrollIntoView when changing images', async () => {
+    const user = userEvent.setup()
+    const mockScrollIntoView = jest.fn()
+    Element.prototype.scrollIntoView = mockScrollIntoView
+
+    render(<ImageGalleryModal {...defaultProps} initialIndex={0} />)
+
+    // Click next button to trigger scrollIntoView
+    const nextButton = screen.getAllByRole('button').find(btn => btn.textContent === 'Right')
+    if (nextButton) {
+      await user.click(nextButton)
+    }
+
+    // scrollIntoView should have been called
+    expect(mockScrollIntoView).toHaveBeenCalled()
   })
 })

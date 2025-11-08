@@ -40,10 +40,12 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
         console.warn('⚠️ Error checking availability (table may not exist yet):', availabilityError.message);
       }
 
+      // Only exclude apartments with CONFIRMED bookings
+      // Pending bookings are just requests and should not block availability
       const { data: bookedApartments, error: bookingsError } = await supabase
         .from('bookings')
         .select('apartment_id')
-        .in('status', ['confirmed', 'pending'])
+        .eq('status', 'confirmed')
         .or(`check_in.lte.${checkOutStr},check_out.gte.${checkInStr}`);
         
       if (bookingsError) {
