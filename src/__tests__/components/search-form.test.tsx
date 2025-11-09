@@ -33,7 +33,8 @@ jest.mock('@/components/date-range-picker', () => ({
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
   Search: () => <span data-testid="search-icon" />,
-  Users: () => <span data-testid="users-icon" />
+  Users: () => <span data-testid="users-icon" />,
+  SlidersHorizontal: () => <span data-testid="sliders-icon" />
 }))
 
 // Mock UI components that might have @radix-ui dependencies
@@ -56,6 +57,35 @@ jest.mock('@/components/ui/select', () => ({
   SelectItem: ({ children, value }: any) => <option value={value}>{children}</option>,
   SelectTrigger: ({ children }: any) => <button>{children}</button>,
   SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>
+}))
+
+jest.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ children, open, onOpenChange }: any) => {
+    return (
+      <div data-testid="dialog-wrapper">
+        {open && <div data-testid="dialog">{children}</div>}
+        {!open && children}
+      </div>
+    )
+  },
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div>{children}</div>,
+  DialogTitle: ({ children }: any) => <h2>{children}</h2>,
+  DialogDescription: ({ children }: any) => <p>{children}</p>,
+  DialogFooter: ({ children }: any) => <div>{children}</div>,
+  DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>
+}))
+
+jest.mock('@/components/ui/checkbox', () => ({
+  Checkbox: ({ id, checked, onCheckedChange }: any) => (
+    <input
+      type="checkbox"
+      id={id}
+      checked={checked}
+      onChange={(e) => onCheckedChange(e.target.checked)}
+      data-testid={`checkbox-${id}`}
+    />
+  )
 }))
 
 describe('SearchForm', () => {
@@ -249,5 +279,187 @@ describe('SearchForm', () => {
 
     rerender(<SearchForm onSearch={mockOnSearch} isLoading={true} />)
     expect(screen.getByRole('button', { name: 'searching' })).toBeInTheDocument()
+  })
+
+  describe('Amenities Filtering', () => {
+    it('renders filters button', () => {
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      expect(filtersButton).toBeInTheDocument()
+      expect(screen.getByTestId('sliders-icon')).toBeInTheDocument()
+    })
+
+    it('renders dialog trigger for amenities', () => {
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      // Check that dialog trigger exists
+      expect(screen.getByTestId('dialog-trigger')).toBeInTheDocument()
+      
+      // Check that filters button is inside the trigger
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      expect(filtersButton).toBeInTheDocument()
+    })
+
+    it('displays all available amenities in the dialog', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      // Check for some key amenities
+      expect(screen.getByTestId('checkbox-wifi')).toBeInTheDocument()
+      expect(screen.getByTestId('checkbox-kitchen')).toBeInTheDocument()
+      expect(screen.getByTestId('checkbox-air_conditioning')).toBeInTheDocument()
+      expect(screen.getByTestId('checkbox-parking')).toBeInTheDocument()
+      expect(screen.getByTestId('checkbox-pool')).toBeInTheDocument()
+    })
+
+    it('allows selecting amenities', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      const kitchenCheckbox = screen.getByTestId('checkbox-kitchen')
+      
+      await user.click(wifiCheckbox)
+      await user.click(kitchenCheckbox)
+      
+      expect(wifiCheckbox).toBeChecked()
+      expect(kitchenCheckbox).toBeChecked()
+    })
+
+    it('shows selected count in dialog description', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      const kitchenCheckbox = screen.getByTestId('checkbox-kitchen')
+      
+      await user.click(wifiCheckbox)
+      await user.click(kitchenCheckbox)
+      
+      expect(screen.getByText('selectedCount')).toBeInTheDocument()
+    })
+
+    it('shows selected count badge on filters button', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      await user.click(wifiCheckbox)
+      
+      // Close dialog by clicking apply
+      const applyButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('applyFilters'))
+      await user.click(applyButton!)
+      
+      // Badge should show count
+      expect(screen.getByText('1')).toBeInTheDocument()
+    })
+
+    it('clears all selected amenities when clear button is clicked', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      const kitchenCheckbox = screen.getByTestId('checkbox-kitchen')
+      
+      await user.click(wifiCheckbox)
+      await user.click(kitchenCheckbox)
+      
+      expect(wifiCheckbox).toBeChecked()
+      expect(kitchenCheckbox).toBeChecked()
+      
+      const clearButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('clearFilters'))
+      await user.click(clearButton!)
+      
+      expect(wifiCheckbox).not.toBeChecked()
+      expect(kitchenCheckbox).not.toBeChecked()
+    })
+
+    it('calls onSearch with amenities when apply button is clicked', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+
+      // Set dates first
+      const dateRangePicker = screen.getByTestId('date-range-picker')
+      await user.click(dateRangePicker)
+
+      // Open filters
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+
+      // Select amenities
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      const kitchenCheckbox = screen.getByTestId('checkbox-kitchen')
+      await user.click(wifiCheckbox)
+      await user.click(kitchenCheckbox)
+
+      // Apply filters (closes the dialog)
+      const applyButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('applyFilters'))
+      await user.click(applyButton!)
+
+      // Click search button to trigger onSearch
+      const searchButton = screen.getByRole('button', { name: 'searchApartments' })
+      await user.click(searchButton)
+
+      expect(mockOnSearch).toHaveBeenCalledWith({
+        checkIn: new Date('2023-06-01T00:00:00.000Z'),
+        checkOut: new Date('2023-06-07T00:00:00.000Z'),
+        guests: 1,
+        amenities: ['wifi', 'kitchen']
+      })
+    })
+
+    it('does not include amenities in search when none are selected', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      // Set dates
+      const dateRangePicker = screen.getByTestId('date-range-picker')
+      await user.click(dateRangePicker)
+      
+      // Click search without selecting amenities
+      const searchButton = screen.getByRole('button', { name: 'searchApartments' })
+      await user.click(searchButton)
+      
+      expect(mockOnSearch).toHaveBeenCalledWith({
+        checkIn: new Date('2023-06-01T00:00:00.000Z'),
+        checkOut: new Date('2023-06-07T00:00:00.000Z'),
+        guests: 1,
+        amenities: undefined
+      })
+    })
+
+    it('allows deselecting amenities', async () => {
+      const user = userEvent.setup()
+      render(<SearchForm onSearch={mockOnSearch} />)
+      
+      const filtersButton = screen.getAllByRole('button').find(btn => btn.textContent?.includes('filters'))
+      await user.click(filtersButton!)
+      
+      const wifiCheckbox = screen.getByTestId('checkbox-wifi')
+      
+      // Select
+      await user.click(wifiCheckbox)
+      expect(wifiCheckbox).toBeChecked()
+      
+      // Deselect
+      await user.click(wifiCheckbox)
+      expect(wifiCheckbox).not.toBeChecked()
+    })
   })
 })

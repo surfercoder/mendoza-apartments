@@ -144,7 +144,13 @@
     "selectDatesAlert": "Please select check-in and check-out dates",
     "bookingFailed": "Failed to submit booking. Please try again.",
     "emailPlaceholder": "your.email@example.com",
-    "phonePlaceholder": "+5492616530387"
+    "phonePlaceholder": "+5492616530387",
+    "filters": "Filters",
+    "amenitiesTitle": "Filter by Amenities",
+    "amenitiesDescription": "Select the amenities you want in your apartment",
+    "selectedCount": "{count} selected",
+    "clearFilters": "Clear Filters",
+    "applyFilters": "Apply Filters"
   },
   "validation": {
     "nameMinLength": "Name must be at least 2 characters",

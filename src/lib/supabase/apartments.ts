@@ -34,7 +34,8 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
         .from('apartment_availability')
         .select('apartment_id')
         .eq('is_available', false)
-        .or(`start_date.lte.${checkOutStr},end_date.gte.${checkInStr}`);
+        .lte('start_date', checkOutStr)
+        .gte('end_date', checkInStr);
         
       if (availabilityError) {
         console.warn('⚠️ Error checking availability (table may not exist yet):', availabilityError.message);
@@ -46,7 +47,8 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
         .from('bookings')
         .select('apartment_id')
         .eq('status', 'confirmed')
-        .or(`check_in.lte.${checkOutStr},check_out.gte.${checkInStr}`);
+        .lte('check_in', checkOutStr)
+        .gte('check_out', checkInStr);
         
       if (bookingsError) {
         console.warn('⚠️ Error checking bookings (table may not exist yet):', bookingsError.message);
@@ -75,8 +77,21 @@ export async function getAvailableApartments(filters: SearchFilters): Promise<Ap
       return [];
     }
 
-    console.log('✅ Found', data?.length || 0, 'available apartments');
-    return data || [];
+    // Filter by amenities if provided
+    let filteredData = data || [];
+    if (filters.amenities && filters.amenities.length > 0) {
+      filteredData = filteredData.filter(apartment => {
+        // Check if apartment has all selected amenities
+        return filters.amenities!.every(amenity => {
+          const hasAmenity = apartment.characteristics[amenity as keyof typeof apartment.characteristics];
+          return hasAmenity === true;
+        });
+      });
+      console.log('🔍 Filtered to', filteredData.length, 'apartments with selected amenities');
+    }
+
+    console.log('✅ Found', filteredData.length, 'available apartments');
+    return filteredData;
   } catch (error) {
     console.error('❌ Unexpected error fetching available apartments:', {
       error,

@@ -64,11 +64,13 @@ describe('lib/supabase/apartments', () => {
   const createMockSupabaseClient = () => {
     // Create a fresh mock chain for each test
     let isAfterDelete = false
+    let currentTable = ''
 
     const mockChain = {
       select: jest.fn(),
       eq: jest.fn(),
       gte: jest.fn(),
+      lte: jest.fn(),
       not: jest.fn(),
       order: jest.fn(),
       single: jest.fn(),
@@ -82,6 +84,7 @@ describe('lib/supabase/apartments', () => {
     // Configure chain methods to return the chain for method chaining
     mockChain.select.mockImplementation(() => mockChain)
     mockChain.gte.mockImplementation(() => mockChain)
+    mockChain.lte.mockImplementation(() => mockChain)
     mockChain.not.mockImplementation(() => mockChain)
     mockChain.in.mockImplementation(() => mockChain)
     mockChain.insert.mockImplementation(() => mockChain)
@@ -120,8 +123,15 @@ describe('lib/supabase/apartments', () => {
       error: null
     }))
 
+    const from = jest.fn().mockImplementation((table: string) => {
+      currentTable = table
+      return mockChain
+    })
+
     return {
-      from: jest.fn().mockReturnValue(mockChain)
+      from,
+      _mockChain: mockChain,
+      _getCurrentTable: () => currentTable
     }
   }
 
@@ -556,11 +566,17 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      // Mock availability check to return error
-      mockClient.from().or.mockResolvedValue({
-        data: null,
-        error: { message: 'Table does not exist' }
+
+      // Set up gte to return errors for both availability and bookings checks
+      let callCount = 0
+      mockClient.from().gte.mockImplementation(() => {
+        callCount++
+        return Promise.resolve({
+          data: null,
+          error: { message: 'Table does not exist' }
+        })
       })
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -580,14 +596,31 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      // Mock availability check to return some unavailable apartments
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [{ apartment_id: 'apt-unavailable' }],
-        error: null
-      }).mockResolvedValueOnce({
-        data: [{ apartment_id: 'apt-booked' }],
-        error: null
+
+      // Set up gte to return different data based on which table is being queried
+      let availabilityCalled = false
+      let bookingsCalled = false
+
+      mockClient._mockChain.gte.mockImplementation(() => {
+        const table = mockClient._getCurrentTable()
+
+        if (table === 'apartment_availability' && !availabilityCalled) {
+          availabilityCalled = true
+          return Promise.resolve({
+            data: [{ apartment_id: 'apt-unavailable' }],
+            error: null
+          })
+        } else if (table === 'bookings' && !bookingsCalled) {
+          bookingsCalled = true
+          return Promise.resolve({
+            data: [{ apartment_id: 'apt-booked' }],
+            error: null
+          })
+        }
+        // For the main apartments query, return the chain
+        return mockClient._mockChain
       })
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -599,7 +632,7 @@ describe('lib/supabase/apartments', () => {
       await getAvailableApartments(filters)
 
       expect(console.log).toHaveBeenCalledWith('🚫 Excluding', 2, 'unavailable apartments')
-      expect(mockClient.from().not).toHaveBeenCalledWith('id', 'in', '(apt-unavailable,apt-booked)')
+      expect(mockClient._mockChain.not).toHaveBeenCalledWith('id', 'in', '(apt-unavailable,apt-booked)')
     })
 
     it('should log successful results', async () => {
@@ -664,19 +697,27 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      
-      // Mock the availability check to return no unavailable apartments
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
-        error: null
+
+      // Set up gte to return different data for availability and bookings checks
+      let callCount = 0
+      mockClient.from().gte.mockImplementation(() => {
+        callCount++
+        if (callCount === 1) {
+          // First call: no unavailable apartments
+          return Promise.resolve({
+            data: [],
+            error: null
+          })
+        } else if (callCount === 2) {
+          // Second call: one confirmed booking
+          return Promise.resolve({
+            data: [{ apartment_id: 'apt-confirmed' }],
+            error: null
+          })
+        }
+        return Promise.resolve({ data: [], error: null })
       })
-      
-      // Mock the bookings check - should only query for 'confirmed' status
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [{ apartment_id: 'apt-confirmed' }],
-        error: null
-      })
-      
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -698,19 +739,26 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      
-      // No unavailable apartments
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
+
+      // Set up gte to return empty arrays for availability/bookings checks
+      mockClient._mockChain.gte.mockImplementation(() => {
+        const table = mockClient._getCurrentTable()
+        if (table === 'apartment_availability' || table === 'bookings') {
+          return Promise.resolve({
+            data: [],
+            error: null
+          })
+        }
+        // For the main apartments query, return the chain
+        return mockClient._mockChain
+      })
+
+      // Mock the main apartments query to return an apartment
+      mockClient._mockChain.order.mockResolvedValue({
+        data: [createMockApartment()],
         error: null
       })
-      
-      // No confirmed bookings (pending bookings should not block)
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
-        error: null
-      })
-      
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -731,19 +779,31 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      
-      // No unavailable apartments
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
-        error: null
+
+      // Set up gte to return different data based on table
+      let availabilityCalled = false
+      let bookingsCalled = false
+
+      mockClient._mockChain.gte.mockImplementation(() => {
+        const table = mockClient._getCurrentTable()
+
+        if (table === 'apartment_availability' && !availabilityCalled) {
+          availabilityCalled = true
+          return Promise.resolve({
+            data: [],
+            error: null
+          })
+        } else if (table === 'bookings' && !bookingsCalled) {
+          bookingsCalled = true
+          return Promise.resolve({
+            data: [{ apartment_id: 'apt-confirmed-booked' }],
+            error: null
+          })
+        }
+        // For the main apartments query, return the chain
+        return mockClient._mockChain
       })
-      
-      // One confirmed booking that overlaps
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [{ apartment_id: 'apt-confirmed-booked' }],
-        error: null
-      })
-      
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -756,7 +816,7 @@ describe('lib/supabase/apartments', () => {
 
       // Should exclude the confirmed booking
       expect(console.log).toHaveBeenCalledWith('🚫 Excluding', 1, 'unavailable apartments')
-      expect(mockClient.from().not).toHaveBeenCalledWith('id', 'in', '(apt-confirmed-booked)')
+      expect(mockClient._mockChain.not).toHaveBeenCalledWith('id', 'in', '(apt-confirmed-booked)')
     })
 
     it('should show apartments for future dates even with pending bookings in past', async () => {
@@ -764,19 +824,26 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
-      
-      // No unavailable apartments
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
+
+      // Set up gte to return empty arrays for availability/bookings checks
+      mockClient._mockChain.gte.mockImplementation(() => {
+        const table = mockClient._getCurrentTable()
+        if (table === 'apartment_availability' || table === 'bookings') {
+          return Promise.resolve({
+            data: [],
+            error: null
+          })
+        }
+        // For the main apartments query, return the chain
+        return mockClient._mockChain
+      })
+
+      // Mock the main apartments query to return an apartment
+      mockClient._mockChain.order.mockResolvedValue({
+        data: [createMockApartment()],
         error: null
       })
-      
-      // No confirmed bookings in the searched date range
-      mockClient.from().select().eq().or.mockResolvedValueOnce({
-        data: [],
-        error: null
-      })
-      
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const filters: SearchFilters = {
@@ -797,6 +864,15 @@ describe('lib/supabase/apartments', () => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
 
       const mockClient = createMockSupabaseClient()
+
+      // Set up gte to return empty arrays
+      mockClient.from().gte.mockImplementation(() => {
+        return Promise.resolve({
+          data: [],
+          error: null
+        })
+      })
+
       mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
 
       const checkIn = new Date('2023-11-24')
@@ -810,8 +886,242 @@ describe('lib/supabase/apartments', () => {
 
       await getAvailableApartments(filters)
 
-      // Verify the date overlap query is constructed correctly
-      expect(mockClient.from().or).toHaveBeenCalledWith('check_in.lte.2023-11-27,check_out.gte.2023-11-24')
+      // Verify the date overlap query is constructed correctly using lte and gte
+      expect(mockClient.from().lte).toHaveBeenCalledWith('check_in', '2023-11-27')
+      expect(mockClient.from().gte).toHaveBeenCalledWith('check_out', '2023-11-24')
+    })
+  })
+
+  describe('Amenities filtering', () => {
+    it('should filter apartments by single amenity', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        {
+          ...createMockApartment(),
+          id: 'apt-1',
+          characteristics: { wifi: true, kitchen: true, pool: false }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-2',
+          characteristics: { wifi: false, kitchen: true, pool: true }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-3',
+          characteristics: { wifi: true, kitchen: false, pool: true }
+        }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: ['wifi']
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(2)
+      expect(result[0].id).toBe('apt-1')
+      expect(result[1].id).toBe('apt-3')
+      expect(console.log).toHaveBeenCalledWith('🔍 Filtered to', 2, 'apartments with selected amenities')
+    })
+
+    it('should filter apartments by multiple amenities', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        {
+          ...createMockApartment(),
+          id: 'apt-1',
+          characteristics: { wifi: true, kitchen: true, pool: true }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-2',
+          characteristics: { wifi: true, kitchen: false, pool: true }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-3',
+          characteristics: { wifi: true, kitchen: true, pool: false }
+        }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: ['wifi', 'kitchen']
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(2)
+      expect(result[0].id).toBe('apt-1')
+      expect(result[1].id).toBe('apt-3')
+    })
+
+    it('should return no apartments when none match all amenities', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        {
+          ...createMockApartment(),
+          id: 'apt-1',
+          characteristics: { wifi: true, kitchen: false, pool: false }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-2',
+          characteristics: { wifi: false, kitchen: true, pool: false }
+        }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: ['wifi', 'kitchen', 'pool']
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(0)
+    })
+
+    it('should not filter when amenities array is empty', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        createMockApartment(),
+        { ...createMockApartment(), id: 'apt-2' }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: []
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(2)
+      expect(console.log).not.toHaveBeenCalledWith(expect.stringContaining('Filtered to'))
+    })
+
+    it('should not filter when amenities is undefined', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        createMockApartment(),
+        { ...createMockApartment(), id: 'apt-2' }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: undefined
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(2)
+    })
+
+    it('should combine date and amenity filters', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        {
+          ...createMockApartment(),
+          id: 'apt-1',
+          characteristics: { wifi: true, kitchen: true }
+        },
+        {
+          ...createMockApartment(),
+          id: 'apt-2',
+          characteristics: { wifi: false, kitchen: true }
+        }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().select().eq().gte().not().order.mockResolvedValue({ 
+        data: mockApartments, 
+        error: null 
+      })
+      mockClient.from().select().eq().or.mockResolvedValue({ data: [], error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: new Date('2023-06-01'),
+        checkOut: new Date('2023-06-07'),
+        guests: 2,
+        amenities: ['wifi']
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('apt-1')
+    })
+
+    it('should handle amenities that do not exist in characteristics', async () => {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key'
+
+      const mockApartments = [
+        {
+          ...createMockApartment(),
+          id: 'apt-1',
+          characteristics: { wifi: true }
+        }
+      ]
+
+      const mockClient = createMockSupabaseClient()
+      mockClient.from().order.mockResolvedValue({ data: mockApartments, error: null })
+      mockCreateClient.mockReturnValue(mockClient as unknown as SupabaseClient)
+
+      const filters: SearchFilters = {
+        checkIn: undefined,
+        checkOut: undefined,
+        guests: 1,
+        amenities: ['pool']
+      }
+
+      const result = await getAvailableApartments(filters)
+
+      expect(result).toHaveLength(0)
     })
   })
 

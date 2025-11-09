@@ -144,7 +144,13 @@
     "selectDatesAlert": "Por favor seleccioná fechas de entrada y salida",
     "bookingFailed": "Error al enviar la reserva. Por favor intentá de nuevo.",
     "emailPlaceholder": "tu.email@ejemplo.com",
-    "phonePlaceholder": "+5492616530387"
+    "phonePlaceholder": "+5492616530387",
+    "filters": "Filtros",
+    "amenitiesTitle": "Filtrar por comodidades",
+    "amenitiesDescription": "Seleccioná las comodidades que querés en tu departamento",
+    "selectedCount": "{count} seleccionado{count, plural, one {} other {s}}",
+    "clearFilters": "Limpiar filtros",
+    "applyFilters": "Aplicar filtros"
   },
   "validation": {
     "nameMinLength": "El nombre debe tener al menos 2 caracteres",

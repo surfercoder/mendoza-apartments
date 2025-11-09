@@ -81,6 +81,7 @@ export interface SearchFilters {
   checkIn: Date | undefined;
   checkOut: Date | undefined;
   guests: number;
+  amenities?: string[];
 }
 
 export interface ApartmentFormData {
